@@ -1,5 +1,5 @@
-import { CompiledSchema } from "./compiled-schema.js";
-import { behead } from '../utils.js';
+import { CompiledSchema } from './compiled-schema.js';
+import { behead } from './helpers/path.js';
 
 export class SchemaLocation {
 

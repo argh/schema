@@ -1,4 +1,4 @@
-import { deepValue } from '../../utils.js';
+import { deepValue } from '../helpers/deep.js';
 
 /**
  * ## $get

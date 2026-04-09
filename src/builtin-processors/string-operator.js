@@ -1,6 +1,6 @@
-import { ConstraintError } from '../schema-errors.js';
 import { stringify } from '../helpers/stringify.js';
 import { EMPTY } from '../constants.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $string

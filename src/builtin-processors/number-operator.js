@@ -1,5 +1,5 @@
-import { ConstraintError } from '../schema-errors.js';
 import { EMPTY } from '../constants.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $number

@@ -1,9 +1,10 @@
-import { ConstraintError, ResolverError } from '../schema-errors.js';
+
 import { ConditionalExecutor } from '../executor/conditional-executor.js';
 import { ValueProcessor } from '../value-processor/value-processor.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { SequenceExecutor } from '../executor/sequence-executor.js';
-import { formatValue } from '../../errors.js';
+import { formatValue } from '../errors.js';
+import { ConstraintError, ResolverError } from '../errors.js';
 
 /**
  * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'
@@ -47,6 +48,8 @@ function generateBuilderFunction(keyword, joiner, builder) {
  * A constraint that checks whether any of the provided processors return a truthy value.
  *
  * Returns the first truthy value from the processors, or throws if none are truthy.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
  *
  * See `$any` if you want to check for success (defined value) instead of truthiness
  *
@@ -98,6 +101,8 @@ export const OR_CONSTRAINT = {
  * A constraint that checks whether all the provided processors return a truthy value.
  *
  * Returns the last truthy value from the processors, or throws if any are falsey.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
  *
  * See `$all` if you want to check for success (defined value) instead of truthiness
  *
@@ -144,8 +149,11 @@ export const AND_CONSTRAINT = {
  * ## $any
  *
  * A constraint that checks whether any of the provided processors return a defined value.
+ * (Not to be confused with the unrelated "any" schema!)
  *
  * Returns the first defined value from the processors, or throws if none returned a defined value.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
  *
  * See `$or` if you want to check for truthiness instead of a defined value.
  *
@@ -175,7 +183,7 @@ export const ANY_CONSTRAINT = {
       new ComposedValueProcessor(
         new ConditionalExecutor(
           new SequenceExecutor(processors, [
-            SequenceExecutor.SUCCESS_CHECK,
+            SequenceExecutor.DEFINED_CHECK,
             SequenceExecutor.ANY_CRITERIA,
             SequenceExecutor.RESULT_RETURN,
             SequenceExecutor.CAPTURE_ERRORS
@@ -197,6 +205,8 @@ export const ANY_CONSTRAINT = {
  * A constraint that checks whether all the provided processors return a defined value.
  *
  * Returns the last defined value returned from the processors, or throws if any returned undefined or threw an error.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
  *
  * See `$and` if you want to check for truthiness instead of defined values.
  *
@@ -223,7 +233,7 @@ export const ALL_CONSTRAINT = {
       new ComposedValueProcessor(
         new ConditionalExecutor(
           new SequenceExecutor(processors, [
-            SequenceExecutor.SUCCESS_CHECK,
+            SequenceExecutor.DEFINED_CHECK,
             SequenceExecutor.ALL_CRITERIA,
             SequenceExecutor.RESULT_RETURN,
             SequenceExecutor.CAPTURE_ERRORS
@@ -240,12 +250,115 @@ export const ALL_CONSTRAINT = {
 
 };
 
+
+/**
+ * ## $exclusive
+ *
+ * A constraint that checks whether exactly one of the provided processors returns a truthy value.
+ *
+ * Returns the single truthy value, or throws if zero or more than one are truthy.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
+
+ * See `$one` if you want to check for success (defined value) instead of truthiness.
+ *
+ * ### Parameters
+ * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, exactly one of which must return a truthy value.
+ *
+ * ### Example
+ * ```js
+ * // A form field must have either an email or a phone number, but not both
+ * new Schema('object').validator({
+ *   $exclusive: [
+ *     {$property: 'email'},
+ *     {$property: 'phone'},
+ *   ]
+ * })
+ * ```
+ *
+ * @type {ValueProcessorDefinition}
+ */
+export const EXCLUSIVE_CONSTRAINT = {
+  keyword: 'exclusive',
+  build: generateBuilderFunction('$exclusive', ' ⊕ ',
+    (processors, spec, description) => (
+      new ComposedValueProcessor(
+        new ConditionalExecutor(
+          new SequenceExecutor(processors, [
+            SequenceExecutor.TRUTHY_CHECK,
+            SequenceExecutor.EXCLUSIVE_CRITERIA,
+            SequenceExecutor.RESULT_RETURN,
+            SequenceExecutor.CAPTURE_ERRORS
+          ]),
+          {
+            failure: (value) => {
+              throw new ConstraintError(`Exactly one of the $exclusive conditions ${formatValue(description)} must match`, {value});
+            }
+          },
+          [ConditionalExecutor.CHECK_TRUTHY]
+        ), spec, description)
+    )
+  )
+};
+
+/**
+ * ## $one
+ *
+ * A constraint that checks whether exactly one of the provided processors returns a defined value.
+ *
+ * Returns the single defined value, or throws if zero or more than one succeed.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
+
+ * See `$exclusive` if you want to check for truthiness instead of a defined value.
+ *
+ * ### Parameters
+ * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, exactly one of which must return a defined value.
+ *
+ * ### Example
+ * ```js
+ * // Exactly one authentication method must be configured
+ * new Schema('object').validator({
+ *   $one: [
+ *     {$property: 'apiKey'},
+ *     {$property: 'oauth'},
+ *     {$property: 'basicAuth'},
+ *   ]
+ * })
+ * ```
+ *
+ * @type {ValueProcessorDefinition}
+ */
+export const ONE_CONSTRAINT = {
+  keyword: 'one',
+  build: generateBuilderFunction('$one', ' ⊕ ',
+    (processors, spec, description) => (
+      new ComposedValueProcessor(
+        new ConditionalExecutor(
+          new SequenceExecutor(processors, [
+            SequenceExecutor.DEFINED_CHECK,
+            SequenceExecutor.EXCLUSIVE_CRITERIA,
+            SequenceExecutor.RESULT_RETURN,
+            SequenceExecutor.CAPTURE_ERRORS
+          ]),
+          {
+            failure: (value) => {
+              throw new ConstraintError(`Exactly one of the $one conditions ${formatValue(description)} must succeed`, {value});
+            }
+          },
+          [ConditionalExecutor.CHECK_DEFINED]
+        ), spec, description)
+    )
+  )
+};
 /**
  * ## $first
  *
  * An operator that returns the first defined value successfully returned from a sequence of processors.
  *
  * Unlike `$any`, no exception is thrown if there are no defined results, it simply returns `undefined`.
+ * Be careful to not use this in a situation where the provided processors may require late-resolved values!
+ * This works best in finalizers, validators, or in opaque schema transformers.
  *
  * There is no truthy variant of `$first`, as there generally isn't much value in differentiating which
  * truthy value to return; use constructs like `{$if: {$or: [...]}}` to wrap truthy sequence constraints as operators.

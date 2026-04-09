@@ -1,4 +1,4 @@
-import { toCapitalize } from '../../utils.js';
+import { toCapitalize } from '../helpers/case.js';
 
 /**
  * ## $capitalize

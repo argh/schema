@@ -1,22 +1,17 @@
 {
-  "name": "@versionzero/configurator",
+  "name": "@versionzero/schema",
   "version": "0.2.1-main.20",
-  "description": "A simple configuration utility for Node.js",
+  "description": "A composable schema library for Node.js that supports asynchronous processing",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js",
-    "./sources": "./src/configuration-sources/index.js",
-    "./utils": "./src/utils.js"
+    ".": "./src/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/argh/configurator.git"
+    "url": "git+https://github.com/argh/schema.git"
   },
   "keywords": [
-    "configuration",
     "schema",
-    "command line",
-    "configurator",
     "argh",
     "versionzero",
     "v0"

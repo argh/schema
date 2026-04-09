@@ -1,28 +1,29 @@
-import { deepEquals, deepPrune, isPlainObject, isTruthy } from '../utils.js';
 import { toData } from './helpers/to-data.js';
 import { SchemaLocation } from './schema-location.js';
-import { TraversalContext } from './traversal/index.js';
-
-// Core executor functionality
-
+import { TraversalContext } from './traversal/traversal-context.js';
+import { PipelineExecutor } from "./executor/pipeline-executor.js";
 import { ValueProcessor } from './value-processor/value-processor.js';
-
-import {
-  FinalizeError,
-  NormalizeError, SchemaError,
-  SerializeError,
-  TransformError,
-  ValidationError
-} from './schema-errors.js';
+import { EMPTY } from './constants.js';
 import {
   PROCESS_EXECUTOR,
   PRELOAD_EXECUTOR,
-  VALIDATE_EXECUTOR,
-  SERIALIZE_EXECUTOR
-} from "./traversal/executors/index.js";
-import { formatValue } from "../errors.js";
-import { PipelineExecutor } from "./executor/pipeline-executor.js";
-import { EMPTY } from './constants.js';
+  SERIALIZE_EXECUTOR,
+  VALIDATE_EXECUTOR
+} from './traversal/executors/index.js';
+
+import {
+  formatValue,
+  FinalizeError,
+  NormalizeError,
+  SchemaError,
+  SerializeError,
+  TransformError,
+  ValidationError
+} from './errors.js';
+import { deepEquals, deepPrune } from './helpers/deep.js';
+import { isTruthy } from './helpers/truthy.js';
+import { isPlainObject } from './helpers/object.js';
+import { parse, stringify } from './helpers/stringify.js';
 
 
 /** @import { TraversalContextOptions } from './traversal/traversal-context.js' */
@@ -104,7 +105,7 @@ export class CompiledSchema
   }
 
   /**
-   * Metadata contains information for describing the schema behavior to users and hints for configuration sources.
+   * Metadata contains information for describing the schema behavior to users and hints for tools.
    *
    * @type {CompiledSchemaMetadata}
    */
@@ -646,8 +647,8 @@ export class CompiledSchema
    * Ensure the input is of an expected shape that can be handled by this schema.
    *
    * Runs all normalizer value processors in a pipeline until completion or an error is thrown.
-   * As most external configuration will originate in the form of strings or JSON
-   * structures, the main task of a normalizer is to "canonicalize" these inputs:
+   * As external data may originate in the form of strings or JSON structures, the main task of
+   * a normalizer is to "canonicalize" these inputs:
    * - The normalized output should be accepted by the transformer handler.
    * - Normalizers should usually pass through valid transformed values unchanged.
    * - By contract, when passed "true", a container schema should construct an "empty"
@@ -728,7 +729,7 @@ export class CompiledSchema
    * Ensure the input is of an expected shape that can be handled by this schema.
    *
    * Runs all normalizer value processors in a pipeline until completion or an error is thrown.
-   * As most external configuration will originate in the form of strings or JSON
+   * As many external input values will originate in the form of strings or JSON
    * structures, the main task of a normalizer is to "canonicalize" these inputs:
    * - The normalized output should be accepted by the transformer handler.
    * - Normalizers should usually pass through valid transformed values unchanged.
@@ -1019,10 +1020,31 @@ export class CompiledSchema
     if (value === undefined || value === null || this.isImplicit || isTruthy(this.metadata.omitFromSerialize)) {
       return null;
     }
-    const serializer = this.getValueProcessor('serializers');
+    const serializer = this.getValueProcessor('serializers'); //?? this.getValueProcessor('normalizers');
 
     if (!serializer) {
+      return value;  // should be normalized at least
+      /*
+      if (this.isOpaque) {
+        try {
+          // perhaps they implemented JSON.stringify?
+          return parse(stringify(value))
+        }
+        catch (error) {
+          return value;
+        }
+      }
+      else if (this.isContainer) {
+        if (this.isArray && Array.isArray(value)) {
+          return [...value];
+        }
+        else if (isPlainObject(value)) {
+          return {...value};
+        }
+      }
       return value;
+
+       */
     }
 
     let result;
@@ -1063,7 +1085,7 @@ export class CompiledSchema
   }
 
   /**
-   * Throw an exception if this schema seems to be able to handle a given input value.
+   * Throw an exception if this schema seems able to handle a given input value.
    *
    * @param {any} value
    */
@@ -1207,7 +1229,10 @@ export class CompiledSchema
    *
    * If an output target is provided, it is assumed to already be valid.
    *
-   * (This an async wrapper around the internal `_process` executor function.)
+   * (This is an async wrapper around the internal `_process` executor function.)
+   *
+   * Note: this method makes `CompiledSchema` look somewhat like a `FunctionValueProcessor`, but it has a
+   * slightly different signature.
    *
    * @param {any} input - the value to process
    * @param {any} [target] - preexisting output value to build upon, if any

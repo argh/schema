@@ -1,7 +1,7 @@
-import { SchemaError } from '../schema-errors.js';
 import { ParallelExecutor } from '../executor/parallel-executor.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
-import { map } from '../../utils.js';
+import { SchemaError } from '../errors.js';
+import { map } from '../helpers/object.js';
 
 /** @import {ValueProcessorDefinition} from '../value-processor/value-processor.js' */
 

@@ -1,5 +1,6 @@
-import { formatValue } from "../../errors.js";
-import { SchemaError } from '../schema-errors.js';
+import { formatValue } from "../errors.js";
+
+import { SchemaError } from '../errors.js';
 
 /**
  * ## $find-schema

@@ -1,4 +1,4 @@
-import { toConstantCase } from '../../utils.js';
+import { toConstantCase } from '../helpers/case.js';
 
 /**
  * ## $constant-case

@@ -1,5 +1,6 @@
-import { deepEquals, isEmpty } from '../../../utils.js';
 import { TraversalState } from '../traversal-state.js';
+import { deepEquals } from '../../helpers/deep.js';
+import { isEmpty } from '../../helpers/object.js';
 
 /**
  * @param {TraversalState} state

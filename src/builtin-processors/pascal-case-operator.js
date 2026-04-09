@@ -1,4 +1,4 @@
-import { toPascalCase } from '../../utils.js';
+import { toPascalCase } from '../helpers/case.js';
 
 /**
  * ## $pascal-case

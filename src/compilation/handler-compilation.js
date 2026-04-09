@@ -1,7 +1,7 @@
 import { CompiledSchema } from "../compiled-schema.js";
 import { SchemaCompiler } from "../schema-compiler.js";
 import { SchemaLocation } from "../schema-location.js";
-import { isEmpty } from '../../utils.js';
+import { isEmpty } from '../helpers/object.js';
 
 /**
  *

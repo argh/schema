@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { Schema, SchemaResolver } from '../src/index.js';
 import { AssertionError } from 'node:assert/strict';
 
-import { ValidationError } from '../src/schema/schema-errors.js';
+import { ValidationError } from '../src/errors.js';
 
 const resolver = new SchemaResolver();
 

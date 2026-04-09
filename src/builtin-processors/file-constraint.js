@@ -1,6 +1,7 @@
 import * as fs from 'node:fs/promises';
 
-import { ConstraintError } from '../schema-errors.js';
+
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $file

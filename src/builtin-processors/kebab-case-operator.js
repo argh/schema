@@ -1,4 +1,4 @@
-import { toKebabCase } from '../../utils.js';
+import { toKebabCase } from '../helpers/case.js';
 
 /**
  * ## $kebab-case

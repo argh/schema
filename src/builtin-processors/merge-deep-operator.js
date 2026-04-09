@@ -1,8 +1,9 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
+
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { ObjectExecutor } from '../executor/object-executor.js';
-import { deepMerge } from '../../utils.js';
+import { deepMerge } from '../helpers/deep.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $merge-deep

@@ -1,10 +1,6 @@
 import { CompiledSchema } from './compiled-schema.js';
 import { Schema } from './schema.js';
 import { SchemaCompiler } from './schema-compiler.js';
-import {
-  ConfiguratorError, formatValue
-} from '../errors.js';
-import { isEmpty, isPlainObject, map, toKebabCase } from '../utils.js';
 
 import { ANY_SCHEMA } from './builtin-schemas/any-schema.js';
 import { STRING_SCHEMA } from './builtin-schemas/string-schema.js';
@@ -18,7 +14,6 @@ import { FUNCTION_SCHEMA } from './builtin-schemas/function-schema.js';
 import { getBuiltinProcessors } from './builtin-processors/index.js';
 import { ROOT_SCHEMA } from './builtin-schemas/root-schema.js';
 import { stringify } from './helpers/stringify.js';
-import { ConstraintError, ResolverError, SchemaError } from './schema-errors.js';
 import { PipelineExecutor } from './executor/pipeline-executor.js';
 import {
   ConstantExecutor,
@@ -40,6 +35,9 @@ import { ObjectExecutor } from './executor/object-executor.js';
 import { ArrayExecutor } from './executor/array-executor.js';
 import { ParametersValueProcessor } from './value-processor/parameters-value-processor.js';
 import { DefinedValueProcessor } from './value-processor/defined-value-processor.js';
+import { ConstraintError, ResolverError, SchemaError } from './errors.js';
+import { toKebabCase } from './helpers/case.js';
+import { isEmpty, isPlainObject, map } from './helpers/object.js';
 
 /** @import { SchemaData } from './types.js' */
 /** @import { ValueProcessorDefinition, ValueProcessorSpec, ValueProcessorBuilder, ValueProcessorFunction, ValueProcessorArgs, ValueProcessorParameter, KeywordValueProcessorSpec } from './value-processor/value-processor.js' */
@@ -247,9 +245,16 @@ export class SchemaResolver
 
   compileSchemaValueProcessorSpec(compiler, spec) {
     let compiledSchema;
+
+    if (compiler.compileCache.has(spec)) {
+      return new ComposedValueProcessor(new ConstantExecutor(compiler.compileCache.get(spec)), spec);
+    }
     return new ComposedValueProcessor(
       new FunctionExecutor(
         async () => {
+          if (compiler.compileCache.has(spec)) {
+            return compiler.compileCache.get(spec);
+          }
           compiledSchema ??= (spec instanceof CompiledSchema)? spec : await compiler.compile(spec);
           return compiledSchema;
         }
@@ -334,6 +339,9 @@ export class SchemaResolver
     else if (spec instanceof Schema) {
       valueProcessor = this.compileSchemaValueProcessorSpec(compiler, spec);
     }
+    else if (spec instanceof CompiledSchema) {
+      valueProcessor = new ComposedValueProcessor(new ConstantExecutor(spec), spec);
+    }
     else if (isKeywordValueProcessorSpec(spec)) {
       valueProcessor = this.compileKeywordValueProcessorSpec(compiler, spec, recursive);
     }
@@ -342,6 +350,9 @@ export class SchemaResolver
     }
     else if (spec instanceof RegExp) {
       valueProcessor = new ComposedValueProcessor(new ConstantExecutor(spec), spec, `${spec}`);
+    }
+    else if (spec instanceof Date) {
+      valueProcessor = new ComposedValueProcessor(new ConstantExecutor(spec), spec, spec.toISOString());
     }
     else if (typeof spec === 'string' && spec.startsWith('/') && spec.lastIndexOf('/') > 0) {
       const lastSlash = spec.lastIndexOf('/');

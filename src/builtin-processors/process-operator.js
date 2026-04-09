@@ -1,11 +1,15 @@
 import { CompiledSchema } from '../compiled-schema.js';
-import { SchemaError } from "../schema-errors.js";
-import { formatValue } from '../../errors.js';
+import { formatValue } from '../errors.js';
+import { SchemaError } from '../errors.js';
 
 /**
  * ## $process
  *
  * Process the incoming value according to the provided schema
+ *
+ * Important note: the provided schema is run in isolation in a private local context, which means
+ * that it (and its handlers) have no access to the outer schema or the global target value, and all
+ * paths are relative to the root of the provided schema.
  *
  * ### Parameters
  * - `schema` (CompiledSchema, required): the compiled schema to apply to the input value.
@@ -14,7 +18,7 @@ import { formatValue } from '../../errors.js';
  *
  * ### Example
  * ```js
- * import { Schema, SchemaResolver } from '@versionzero/configurator';
+ * import { Schema, SchemaResolver } from '@versionzero/schema';
  *
  * // Compile a reusable sub-schema and run values through it
  * const resolver = new SchemaResolver();
@@ -46,6 +50,6 @@ export const PROCESS_OPERATOR = {
       throw new SchemaError(`Schema argument must be an instance of CompiledSchema, got ${formatValue(schema)})`, {location});
     }
 
-    return schema.process(value); // do not pass options, or outer schema context/paths will leak in!
+    return schema._process(value); // do not pass options, or outer schema context/paths will leak in!
   }
 };

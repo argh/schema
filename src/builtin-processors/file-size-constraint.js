@@ -1,5 +1,5 @@
 import * as fs from 'node:fs/promises';
-import { ConstraintError, ResolverError } from '../schema-errors.js';
+import { ConstraintError, ResolverError } from '../errors.js';
 
 /**
  * ## $file-size
@@ -8,8 +8,8 @@ import { ConstraintError, ResolverError } from '../schema-errors.js';
  * in bytes and checks the file's metadata without loading the entire file into memory.
  * Can specify minimum, maximum, or both bounds.
  *
- * **This is an async processor** that performs filesystem I/O and must be used in the
- * validation phase (not normalization phase).
+ * **This is an async processor** that performs filesystem I/O, and probably best suited
+ * for use during transformation or validation phases.
  *
  * ### Parameters
  * - `min` (number, optional): Minimum file size in bytes (inclusive). If omitted, no lower bound.
@@ -45,7 +45,7 @@ import { ConstraintError, ResolverError } from '../schema-errors.js';
  */
 export const FILE_SIZE_CONSTRAINT = {
   keyword: 'file-size',
-  parameters: [ { parameter: 'min' }, { parameter: 'max' } ],
+  parameters: [ { parameter: 'min', type: 'number', default: undefined }, { parameter: 'max', type: 'number', default: undefined } ],
 
   process: async (value, _target, _location, options) => {
 

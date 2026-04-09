@@ -1,6 +1,6 @@
-import { ConstraintError } from '../schema-errors.js';
-import { formatValue } from '../../errors.js';
-import { isPlainObject } from '../../utils.js';
+import { formatValue } from '../errors.js';
+import { isPlainObject } from '../helpers/object.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $entries

@@ -1,8 +1,8 @@
-import { ResolverError } from '../schema-errors.js';
 import { PipelineExecutor } from '../executor/pipeline-executor.js';
 
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
-import { map } from '../../utils.js';
+import { map } from '../helpers/object.js';
+import { ResolverError } from '../errors.js';
 
 /**
  * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'

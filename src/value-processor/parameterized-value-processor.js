@@ -1,8 +1,6 @@
 import { ValueProcessor } from './value-processor.js';
 import { SchemaLocation } from "../schema-location.js";
 
-/** @import {ValueProcessorFunction, ValueProcessorDefinition, ValueProcessorArgs} from './value-processor.js' */
-
 /**
  * @augments {ValueProcessor}
  */

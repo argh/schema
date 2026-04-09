@@ -1,8 +1,8 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { EMPTY } from '../src/schema/constants.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { EMPTY } from '../src/constants.js';
 
 describe('Schema: any — automatic container construction', function() {
   /** @type {SchemaResolver} */

@@ -1,6 +1,6 @@
 import { CompiledSchema } from '../compiled-schema.js';
-import { SchemaError } from "../schema-errors.js";
-import { formatValue } from '../../errors.js';
+import { formatValue } from '../errors.js';
+import { SchemaError } from '../errors.js';
 
 /**
  * ## $normalize
@@ -14,7 +14,7 @@ import { formatValue } from '../../errors.js';
  *
  * ### Example
  * ```js
- * import { Schema, SchemaResolver } from '@versionzero/configurator';
+ * import { Schema, SchemaResolver } from '@versionzero/schema';
  *
  * const resolver = new SchemaResolver();
  *

@@ -1,7 +1,8 @@
 import { Schema } from '../schema.js';
-import { deepValue } from '../../utils.js';
+import { deepValue } from '../helpers/deep.js';
 
-import { ConstraintError } from '../schema-errors.js';
+
+import { ConstraintError } from '../errors.js';
 
 export const FUNCTION_SCHEMA = new Schema()
   .option('type', 'function')
@@ -18,7 +19,7 @@ export const FUNCTION_SCHEMA = new Schema()
   })
   .transformer((value, result) => {
     if (typeof value === 'string') {
-      value = deepValue(result, value);  // look up the string as a reference in the current configuration
+      value = deepValue(result, value);  // look up the string as a reference in the current target
     }
     if (typeof value === 'function') {
       return value;

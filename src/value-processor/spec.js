@@ -1,9 +1,7 @@
-
-/** @import { ValueProcessorSpec, KeywordValueProcessorSpec } from './value-processor.js' */
-
-import { isPlainObject } from '../../utils.js';
 import { ValueProcessor } from './value-processor.js';
-import { SchemaError } from '../schema-errors.js';
+import { SchemaError } from '../errors.js';
+import { isPlainObject } from '../helpers/object.js';
+/** @import { ValueProcessorSpec, KeywordValueProcessorSpec } from './value-processor.js' */
 
 /**
  * @param {ValueProcessorSpec} spec

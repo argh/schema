@@ -1,7 +1,8 @@
 import { ValueProcessor } from './value-processor.js';
-import { isEmpty, map } from '../../utils.js';
 import { SchemaLocation } from "../schema-location.js";
-import { SchemaError } from '../schema-errors.js';
+
+import { SchemaError } from '../errors.js';
+import { isEmpty, map } from '../helpers/object.js';
 
 /** @import {ValueProcessorFunction, ValueProcessorDefinition, ValueProcessorArgs} from './value-processor.js' */
 

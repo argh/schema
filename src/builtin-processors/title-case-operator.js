@@ -1,4 +1,4 @@
-import { toTitleCase } from '../../utils.js';
+import { toTitleCase } from '../helpers/case.js';
 
 /**
  * ## $title-case

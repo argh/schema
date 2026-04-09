@@ -1,11 +1,12 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ValidationError } from '../src/schema/schema-errors.js';
+
+import { ValidationError } from '../src/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

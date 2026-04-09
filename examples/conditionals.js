@@ -1,11 +1,11 @@
 import assert from 'node:assert';
 import { Schema, SchemaResolver } from '../src/index.js';
-import { ConstraintError, ValidationError } from '../src/schema/schema-errors.js';
+import { ConstraintError } from '../src/errors.js';
 import { AssertionError } from 'node:assert/strict';
 
 const resolver = new SchemaResolver();
 
-// This example demonstrates the use of conditionals and logic in value processor pipelines.
+// These examples demonstrate the use of conditionals and logic in value processor pipelines.
 //
 // Value processors generally fall into two categories: operators and constraints.
 //

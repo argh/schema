@@ -1,8 +1,13 @@
 import { TraversalState } from '../traversal-state.js';
-import { isPlainObject, isTruthy } from '../../../utils.js';
+import { isPlainObject } from '../../helpers/object.js';
+import { isTruthy } from '../../helpers/truthy.js';
 
 /**
  * Serialize the pending/input and save as output state value
+ *
+ * Runs pre-child-traversal; acts in the same way that normalize does.
+ * Setting the input will propagate down to assigned values in the child states.
+ *
  * @param {TraversalState} state
  * @returns {TraversalState|null|undefined|Promise<TraversalState|null|undefined>}
  */
@@ -10,39 +15,33 @@ export function serialize(state) {
   if (state.schema === undefined) {
     return undefined;
   }
+  const schema = state.schema;
 
-  if (state.schema.isImplicit || isTruthy(state.schema.metadata.omitFromSerialize)) {
-    state.value = null;
+  if (state.assignedInput === null || schema.isImplicit || isTruthy(schema.metadata['omitFromSerialize'])) {
     return null;
   }
 
-  const serializers = state.schema.handlers.serializers ?? [];
-  if (!state.schema.isOpaque && serializers.length === 0) {
-    if (state.schema.isArray) {
-      if (!Array.isArray(state.value)) {
-        state.value = [];
-      }
-    }
-    else if (state.schema.hasChildren) {
-      if (!isPlainObject(state.value)) {
-        state.value = {};
-      }
-    }
-    else {
-      state.value = JSON.parse(JSON.stringify(state.pending ?? state.input))
-    }
+  if (state.assignedInput === undefined) {
     return state;
   }
 
-  const result = state.schema._serializeValue(state.input, state.target, state.location, state.options);
+  const result = schema._serializeValue(state.assignedInput, state.target, state.location, state.options);
 
   /**
    * @param {any} serialized
    * @returns {null|TraversalState}
    */
   const updateState = (serialized) => {
-    state.value = serialized;
-    return (state.value === null)? null : state;
+    if (serialized === null) {
+      state.value = null;
+      return null;
+    }
+    state.pending ??= state.hasChildren? ((schema.isArray || Array.isArray(result))? [] : {}) : serialized;
+    if (!state.isUnion) {
+      state.value = state.pending;
+    }
+    state.input = serialized;
+    return state;
   }
 
   return (result instanceof Promise)? result.then(updateState) : updateState(result);

@@ -1,10 +1,11 @@
 import { CompiledSchema } from '../compiled-schema.js';
 import { SchemaLocation } from '../schema-location.js';
 import { TraversalContext } from './traversal-context.js';
-import { deepEquals, isEmpty, isPlainObject, isPrimitive } from '../../utils.js';
 import { Executor } from "../executor/executor.js";
-import { SchemaError } from '../schema-errors.js';
+import { SchemaError } from '../errors.js';
 import { EMPTY } from '../constants.js';
+import { deepEquals } from '../helpers/deep.js';
+import { isEmpty, isPlainObject, isPrimitive } from '../helpers/object.js';
 
 export class TraversalState
 {
@@ -199,6 +200,11 @@ export class TraversalState
     }
     return this.#children.get(propertyName)
            ?? this.context.getState(this.path ? `${this.path}.${propertyName}` : `${propertyName}`)
+  }
+
+  getRelativeState(path) {
+    const location = this.location?.relative(path);
+    return location? this.context.getState(location) : undefined;
   }
 
   get assignedInput() {
@@ -688,6 +694,9 @@ export class TraversalState
    * @type {Array<TraversalState>}
    */
   get activePropertyStates() {
+    if (this.completed) {
+      return [];
+    }
     if (this.schema === undefined) {
       return [];
     }

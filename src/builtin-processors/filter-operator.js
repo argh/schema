@@ -2,7 +2,8 @@ import { ComposedValueProcessor } from '../value-processor/composed-value-proces
 import { ConditionalExecutor } from '../executor/conditional-executor.js';
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { EachExecutor } from '../executor/each-executor.js';
-import { SchemaError } from '../schema-errors.js';
+
+import { SchemaError } from '../errors.js';
 
 /**
  * ## $filter

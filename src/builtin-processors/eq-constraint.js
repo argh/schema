@@ -1,6 +1,6 @@
-import { deepEquals } from "../../utils.js";
-import { ConstraintError } from '../schema-errors.js';
-import { formatValue } from '../../errors.js';
+import { deepEquals } from "../helpers/deep.js";
+import { formatValue } from '../errors.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $eq

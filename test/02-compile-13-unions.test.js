@@ -1,9 +1,9 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { CompiledSchema } from '../src/schema/compiled-schema.js';
-import { EMPTY } from '../src/schema/constants.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { CompiledSchema } from '../src/compiled-schema.js';
+import { EMPTY } from '../src/constants.js';
 
 describe('Schema Compilation - Union Structure', function() {
   /** @type {SchemaResolver} */

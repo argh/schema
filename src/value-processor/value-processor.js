@@ -1,4 +1,4 @@
-import { Executor, FunctionExecutor, toExecutor } from '../executor/executor.js';
+import { Executor } from '../executor/executor.js';
 import { SchemaLocation } from '../schema-location.js';
 
 /**
@@ -25,10 +25,13 @@ import { SchemaLocation } from '../schema-location.js';
  * @returns {ValueProcessor}
  */
 
+// at what point does the parameter description become complex enough to warrant a schema definition?  :-P
+
 /**
  * @typedef {object} ValueProcessorParameter
  * @property {string} parameter
  * @property {any} [default]
+ * @property {string} [type]
  * @property {boolean} [required]
  */
 

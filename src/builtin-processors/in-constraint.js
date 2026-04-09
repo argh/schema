@@ -1,8 +1,8 @@
-import { isEmpty, map } from "../../utils.js";
-import { ConstraintError, ResolverError, SchemaError } from '../schema-errors.js';
+import { isEmpty, map } from "../helpers/object.js";
 import { ComposedValueProcessor } from "../value-processor/composed-value-processor.js";
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { ArrayExecutor } from '../executor/array-executor.js';
+import { ConstraintError, ResolverError, SchemaError } from '../errors.js';
 
 /** @import {ValueProcessor, ValueProcessorDefinition} from '../value-processor/value-processor.js' */
 

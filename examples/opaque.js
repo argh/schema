@@ -1,8 +1,7 @@
-import { Schema, SchemaResolver } from '../src/index.js';
-import { SchemaPolicy } from '../src/schema/schema.js';
-
 import assert from 'node:assert/strict';
-import { NormalizeError, SchemaError } from '../src/schema/schema-errors.js';
+import { Schema, SchemaResolver } from '../src/index.js';
+import { SchemaPolicy } from '../src/schema.js';
+import { NormalizeError, SchemaError } from '../src/errors.js';
 
 // Opaque Schemas
 //

@@ -11,7 +11,7 @@ export function enterExisting(state) {
   if (state.isPruned) {
     return null;
   }
-  if (state.isComplete) {
+  if (state.completed) {
     return undefined;
   }
 

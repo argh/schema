@@ -1,6 +1,5 @@
 import { TraversalState } from '../traversal-state.js';
-import { PipelineExecutor } from '../../executor/pipeline-executor.js';
-import { FinalizeError, ValidationError } from '../../schema-errors.js';
+import { FinalizeError } from '../../errors.js';
 
 /**
  * @param {TraversalState} state

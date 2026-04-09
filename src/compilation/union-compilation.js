@@ -1,10 +1,9 @@
-import { CompiledSchema } from "../compiled-schema.js";
-import { SchemaCompiler } from "../schema-compiler.js";
-import { SchemaLocation } from "../schema-location.js";
+import { CompiledSchema } from '../compiled-schema.js';
+import { SchemaCompiler } from '../schema-compiler.js';
+import { SchemaLocation } from '../schema-location.js';
 import { Schema } from '../schema.js';
-import { deepEquals } from '../../utils.js';
-import { TraversalContext } from '../traversal/index.js';
-import { SchemaCompilationError, SchemaError, UnionResolutionError } from '../schema-errors.js';
+import { SchemaCompilationError, SchemaError, UnionResolutionError } from '../errors.js';
+import { deepEquals } from '../helpers/deep.js';
 
 /** @import {ValueProcessorFunction} from '../value-processor/value-processor.js' */
 
@@ -337,12 +336,12 @@ function generateAutomaticDiscriminatorFunction(schema) {
 
   /**
    * @param {any} inputObject
-   * @param {any} configuration
+   * @param {any} target
    * @param {SchemaLocation} location
    * @param {object} [options]
    * @returns {CompiledSchema|undefined}
    */
-  function discriminator(inputObject, configuration, location, options) {
+  function discriminator(inputObject, target, location, options) {
 
     let candidates = new Set(unionSchemas)
     let matched = false;

@@ -1,16 +1,15 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { CompiledSchema } from '../src/schema/compiled-schema.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { CompiledSchema } from '../src/compiled-schema.js';
+import { ValueProcessor } from '../src/value-processor/value-processor.js';
 import {
-  ConstraintError,
+  assertErrorMessageInCauseChain, ConstraintError,
   SchemaCompilationError,
   TransformError,
   ValidationError
-} from '../src/schema/schema-errors.js';
-import { ValueProcessor } from '../src/schema/value-processor/value-processor.js';
-import { assertErrorMessageInCauseChain } from '../src/errors.js';
+} from '../src/errors.js';
 
 describe('Schema Compilation - Validator Registration and Resolution', function() {
   /** @type {SchemaResolver} */

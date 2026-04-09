@@ -1,4 +1,4 @@
-import { ConstraintError } from '../schema-errors.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $alphanum

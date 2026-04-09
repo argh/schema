@@ -9,14 +9,12 @@
  * @property {(schema:ISchema) => SchemaData|undefined} toData - Serialize schema to plain object
  */
 
-import { TraversalContext, TraversalState } from './traversal/index.js';
-
+import { TraversalContext } from './traversal/traversal-context.js';
+import { TraversalState } from './traversal/traversal-state.js';
 import { Executor } from './executor/executor.js';
 
-/** @import { CompiledSchema } from './compiled-schema.js' */
 /** @import { SchemaLocation } from './schema-location.js' */
 /** @import { ValueProcessorSpec } from './value-processor/value-processor.js' */
-
 
 /**
  * @typedef {object} ISchemaMetadataCommon
@@ -32,9 +30,6 @@ import { Executor } from './executor/executor.js';
  */
 
 /** @typedef {ISchemaMetadataCommon & {[key:string]: any}} ISchemaMetadata */
-
-
-///** @typedef {ISchemaMetadataCommon & {[key:string]: any}} ISchemaMetadata1 */
 
 /** @typedef {"any"|"string"|"number"|"boolean"|"bigint"|"symbol"|"object"|"array"|"function"|"buffer"|"null"} SchemaFundamentalType */
 

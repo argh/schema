@@ -1,9 +1,8 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { assertErrorMessageInCauseChain } from '../src/errors.js';
-import { SchemaError, UnionResolutionError } from '../src/schema/schema-errors.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { assertErrorMessageInCauseChain, SchemaError, UnionResolutionError } from '../src/errors.js';
 
 describe('Assignments - Unions', function() {
   /** @type {SchemaResolver} */

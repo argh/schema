@@ -1,8 +1,8 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { NormalizeError, TransformError, ValidationError } from '../src/schema/schema-errors.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { NormalizeError, TransformError, ValidationError } from '../src/errors.js';
 
 /**
  * Integration tests: full pipeline processing (.process()) across multiple phases.
@@ -25,7 +25,7 @@ describe('Process - Integration', function() {
    */
   describe('$match → properties → $template pipeline', function() {
 
-    /** @type {import('../src/schema/compiled-schema.js').CompiledSchema} */
+    /** @type {import('../src/compiled-schema.js').CompiledSchema} */
     let schema;
 
     beforeEach(async function() {

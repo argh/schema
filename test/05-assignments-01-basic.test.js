@@ -1,16 +1,10 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { deepAssign, deepValue } from '../src/utils.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
 import { CompiledSchema } from '../src/index.js';
-import {
-  ConstraintError,
-  NormalizeError,
-  SchemaError,
-  TransformError,
-  ValidationError
-} from '../src/schema/schema-errors.js';
+import { ConstraintError, NormalizeError, SchemaError, TransformError, ValidationError } from '../src/errors.js';
+import { deepAssign, deepValue } from '../src/helpers/deep.js';
 
 describe('Assignments - Basic Processing', function() {
   /** @type {SchemaResolver} */

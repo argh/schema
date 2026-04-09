@@ -1,10 +1,9 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { CompiledSchema } from '../src/schema/compiled-schema.js';
-import { assertErrorMessageInCauseChain } from '../src/errors.js';
-import { ValidationError } from '../src/schema/schema-errors.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { CompiledSchema } from '../src/compiled-schema.js';
+import { assertErrorMessageInCauseChain, ValidationError } from '../src/errors.js';
 
 describe('Schema Compilation - Property Basics', function() {
   /** @type {SchemaResolver} */

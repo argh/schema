@@ -1,6 +1,7 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
-import { formatValue } from '../../errors.js';
+
+import { formatValue } from '../errors.js';
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $replace
@@ -32,29 +33,21 @@ import { FunctionValueProcessor } from '../value-processor/function-value-proces
  */
 export const REPLACE_OPERATOR = {
   keyword: 'replace',
-
-  build: (args) => {
-    if (!Array.isArray(args) || args.length !== 2) {
-      throw new SchemaError('$replace requires [pattern, replacement] arguments');
-    }
-    const pattern = args[0]?.spec;
-    const replacement = args[1]?.spec;
-
+  parameters: [{parameter: 'pattern', required: true}, {parameter: 'replacement', required: true, type: 'string'}],
+  process: (value, _target, location, options) => {
+    const {pattern, replacement} = options.args;
     if (typeof pattern !== 'string' && !(pattern instanceof RegExp)) {
       throw new SchemaError(`$replace pattern must be a string or RegExp, got ${formatValue(pattern)}`);
     }
     if (typeof replacement !== 'string') {
       throw new SchemaError(`$replace replacement must be a string, got ${formatValue(replacement)}`);
     }
-
-    return new FunctionValueProcessor((value, _target, location) => {
-      if (typeof value !== 'string') {
-        throw new ConstraintError(`$replace requires a string input, got ${formatValue(value)}`, {location});
-      }
-      return typeof pattern === 'string'
-        ? value.replaceAll(pattern, replacement)
-        : value.replace(pattern, replacement);
-    });
+    if (typeof value !== 'string') {
+      throw new ConstraintError(`$replace requires a string input, got ${formatValue(value)}`, {location});
+    }
+    return typeof pattern === 'string'
+           ? value.replaceAll(pattern, replacement)
+           : value.replace(pattern, replacement);
   }
 };
 
@@ -85,7 +78,7 @@ export const REPLACE_OPERATOR = {
  */
 export const SUBSTRING_OPERATOR = {
   keyword: 'substring',
-  parameters: [ { parameter: 'start', required: true }, { parameter: 'length' } ],
+  parameters: [ { parameter: 'start', required: true, type: 'number' }, { parameter: 'length', type: 'number', default: undefined } ],
 
   process: (value, _target, location, options) => {
     if (typeof value !== 'string') {

@@ -12,8 +12,7 @@ import { Executor, toExecutor } from './executor.js';
  * Errors propagate immediately — a synchronous throw or async rejection halts collection
  * and surfaces the error to the caller without waiting for remaining executors.
  *
- * @template T
- * @augments {Executor<T>}
+ * @augments {Executor<any>}
  */
 export class ParallelExecutor extends Executor {
 
@@ -28,7 +27,7 @@ export class ParallelExecutor extends Executor {
   }
 
   /**
-   * @param {T} input
+   * @param {any} input
    * @param {...any} variadic
    * @returns {any[]|Promise<any[]>}
    */

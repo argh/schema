@@ -1,8 +1,9 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { SchemaError } from '../src/schema/schema-errors.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+
+import { SchemaError } from '../src/errors.js';
 
 /**
  * Registers a `$collect` processor that returns its compiled args as the result.

@@ -1,6 +1,4 @@
 import { CompiledSchema } from "../compiled-schema.js";
-import { SchemaLocation } from "../schema-location.js";
-
 import { formatArgumentType } from '../helpers/format.js';
 
 /**

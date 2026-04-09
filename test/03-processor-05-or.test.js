@@ -1,0 +1,78 @@
+
+import { strict as assert } from 'assert';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+
+
+import { ValidationError } from '../src/errors.js';
+
+describe('Processor: or', function() {
+  /** @type {SchemaResolver} */
+  let resolver;
+
+  beforeEach(function() {
+    resolver = new SchemaResolver();
+  });
+
+  it('should accept value matching first condition', async function() {
+    const schema = new Schema('string').validator({
+      $or: [{$matches: /^test/}, {$matches: /^other/}]
+    });
+    const compiled = await resolver.compile(schema);
+
+    await compiled.validateValue('test123');
+  });
+
+  it('should accept value matching second condition', async function() {
+    const schema = new Schema('string').validator({
+      $or: [{$matches: /^test/}, {$matches: /^other/}]
+    });
+    const compiled = await resolver.compile(schema);
+
+    await compiled.validateValue('other123');
+  });
+
+  it('should accept value matching any condition', async function() {
+    const schema = new Schema('string').validator({
+      $or: ['$numeric', '$alpha']
+    });
+    const compiled = await resolver.compile(schema);
+
+    await compiled.validateValue('123');
+    await compiled.validateValue('abc');
+  });
+
+  it('should reject when no condition matches', async function() {
+    const schema = new Schema('string').validator({
+      $or: [{$matches: /^test/}, {$matches: /^other/}]
+    });
+    const compiled = await resolver.compile(schema);
+
+    await assert.rejects(
+      () => compiled.validateValue('invalid'),
+      ValidationError
+    );
+  });
+
+  it('should return original value if any pass', async function() {
+    const schema = new Schema('string').validator({
+      $or: [
+        {$matches: /other/},
+        {$matches: /test/i}
+      ]
+    });
+    const compiled = await resolver.compile(schema);
+
+    const result = await compiled.validateValue('test');
+    assert.strictEqual(result, 'test');
+  });
+
+  it('should generate combined description', async function() {
+    const schema = new Schema('string').validator({
+      $or: [{$matches: /^test/}, {$matches: /^other/}]
+    });
+    const compiled = await resolver.compile(schema);
+
+    assert.strictEqual(compiled.metadata.valueDescription, '[/^test/ | /^other/]');
+  });
+});

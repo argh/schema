@@ -1,13 +1,24 @@
 import { TraversalState } from '../traversal-state.js';
-import { SchemaError } from '../../schema-errors.js';
+
+import { SchemaError } from '../../errors.js';
 
 /**
  * @param {TraversalState} state
  * @returns {TraversalState|null|undefined|Promise<TraversalState|null|undefined>}
  */
 export function exit(state) {
-  if (state.value === undefined || state.value === null) {
+  if (state.value === null) {
     return state;
+  }
+
+  if (state.value === undefined) {
+    if (state.input !== undefined) {
+      return state;
+    }
+  }
+
+  if (state.completed) {
+    return undefined;
   }
 
   const parentState = state.parent;

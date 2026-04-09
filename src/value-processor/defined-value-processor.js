@@ -1,14 +1,13 @@
 import { ValueProcessor } from './value-processor.js';
-import { isEmpty, isPlainObject, map } from '../../utils.js';
-import { SchemaLocation } from "../schema-location.js";
-import { Executor } from '../executor/executor.js';
 import { ComposedValueProcessor } from './composed-value-processor.js';
 import { ArrayExecutor } from '../executor/array-executor.js';
 import { ObjectExecutor } from '../executor/object-executor.js';
-import { SchemaCompilationError, SchemaError } from '../schema-errors.js';
 import { ParametersValueProcessor } from './parameters-value-processor.js';
 import { FunctionValueProcessor } from './function-value-processor.js';
 import { ParameterizedValueProcessor } from './parameterized-value-processor.js';
+import { SchemaCompilationError, SchemaError } from '../errors.js';
+import { isEmpty, map } from '../helpers/object.js';
+import { CompiledSchema } from '../compiled-schema.js';
 
 /** @import {ValueProcessorFunction, ValueProcessorDefinition, ValueProcessorArgs} from './value-processor.js' */
 
@@ -32,6 +31,11 @@ export class DefinedValueProcessor extends ParameterizedValueProcessor
     if (definition.build) {
       // This should have been handled upstream!
       throw new SchemaCompilationError('Internal compiler error: factory definitions unsupported by DefinedValueProcessor');
+    }
+
+    if (definition instanceof CompiledSchema) {
+      // coding error!
+      throw new SchemaCompilationError('Internal compiler error: a CompiledSchema was incorrectly identified as a DefinedValueProcessor');
     }
 
     let argsProcessor;
@@ -60,7 +64,7 @@ export class DefinedValueProcessor extends ParameterizedValueProcessor
       spec = `$${definition.keyword}`;
     }
 
-    const description = definition.description ?? (definition.describe?.(args) ?? `$${definition.keyword}`)
+    const description = definition.description ?? (definition.describe?.(args) ?? `${definition.keyword}`)
 
     super(new FunctionValueProcessor(definition.process), argsProcessor, spec, description);
   }

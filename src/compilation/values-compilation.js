@@ -1,9 +1,8 @@
-import { CompiledSchema } from "../compiled-schema.js";
-import { SchemaCompiler } from "../schema-compiler.js";
-import { SchemaLocation } from "../schema-location.js";
-import { SchemaCompilationError } from '../schema-errors.js';
-import { isEmpty } from '../../utils.js';
-
+import { CompiledSchema } from '../compiled-schema.js';
+import { SchemaCompiler } from '../schema-compiler.js';
+import { SchemaLocation } from '../schema-location.js';
+import { SchemaCompilationError } from '../errors.js';
+import { isEmpty } from '../helpers/object.js';
 /**
  *
  * @param {CompiledSchema} cs

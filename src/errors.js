@@ -1,7 +1,7 @@
 import assert from "node:assert";
-//import { SchemaLocation } from "./schema/schema-location.js";
-import { stringify } from './schema/helpers/stringify.js';
-import { isPlainObject } from './utils.js';
+import { SchemaLocation } from "./schema-location.js";
+import { stringify } from './helpers/stringify.js';
+import { isPlainObject } from './helpers/object.js';
 
 
 const DELIMITED = /^[^A-Za-z0-9_].+[^A-Za-z0-9_]$/;
@@ -103,12 +103,13 @@ function fpvm(message, value, where, property, prep) {
   return fpm(message, where, property,  prep);
 }
 
-export class ConfiguratorError extends Error {
+export class SchemaError extends Error {
   /**
    * @param {string} message
    * @param {object} [data]
    * @param {Error|any} [data.cause]
    * @param {string} [data.path]
+   * @param {SchemaLocation} [data.location]
    * @param {string|number} [data.property]
    * @param {any} [data.value]
    * @param {number} [data.code]
@@ -122,10 +123,10 @@ export class ConfiguratorError extends Error {
     const cause = data?.cause
       ? data.cause instanceof Error
         ? data.cause
-        : new ConfiguratorError(data.cause, undefined, false)
+        : new SchemaError(data.cause, undefined, false)
       : undefined;
 
-    const path = data?.path ?? data?.cause?.path;
+    const path = data?.path ?? data?.location?.path ?? data?.cause?.path ?? data?.cause?.location?.path;
     const property = data?.property;
 
     if (!path || message.indexOf(path) === -1) {
@@ -228,3 +229,30 @@ export function assertErrorMessageInCauseChain(error, match, fullErrorMessage, e
   }
 }
 
+
+export class ConstraintError
+  extends SchemaError {}
+
+export class ValidationError
+  extends SchemaError {}
+
+export class NormalizeError
+  extends SchemaError {}
+
+export class TransformError
+  extends SchemaError {}
+
+export class FinalizeError
+  extends SchemaError {}
+
+export class SerializeError
+  extends SchemaError {}
+
+export class UnionResolutionError
+  extends SchemaError {}
+
+export class ResolverError
+  extends SchemaError {}
+
+export class SchemaCompilationError
+  extends SchemaError {}

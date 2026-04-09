@@ -1,13 +1,14 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
+
 import { ValueProcessor } from "../value-processor/value-processor.js";
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { ConditionalExecutor } from '../executor/conditional-executor.js';
 import { Executor } from '../executor/executor.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $require
  *
- * Require that the provided processor returns a defined value; return the processed value.
+ * Require that the provided processor returns a defined value; return the original input if so.
  * Throws a constraint error if the processor does not return a defined value.
  *
  * May be used inline in a pipeline without parameters, or can have a single processor argument.
@@ -23,7 +24,7 @@ import { Executor } from '../executor/executor.js';
  *
  * // Require a lookup to succeed (key must exist in the table)
  * new Schema('string').validator({
- *   $require: {$lookup: {admin: 1, user: 2, guest: 3}}
+ *   $require: {$lookup: {$literal: {admin: 1, user: 2, guest: 3}}}
  * })
  *
  * // Require a nested path to resolve

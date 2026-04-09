@@ -1,7 +1,6 @@
 import { TraversalState } from '../traversal-state.js';
-import { SchemaError } from '../../schema-errors.js';
-import { CompiledSchema } from '../../compiled-schema.js';
 import { EMPTY } from '../../constants.js';
+import { SchemaError } from '../../errors.js';
 
 
 /**

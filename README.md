@@ -1,166 +1,218 @@
-# Configurator
+# Schema
 
-A **schema-oriented** configuration management library for Node.js applications that exposes a rich API for
-customization and extension.
+A composition-oriented schema system for processing, extracting, and validating data. 
 
-Developers have control over the entire configuration pipeline, from input to output.
+- Focused on enabling decoupled contracts between systems.  
+- All behavior is composed rather than hard-coded, even fundamental types.
+- Supports unions, conditionals, cross-references, recursion, async value processing, 
+  dynamic resolution, and more.
 
-For full documentation, see <https://docs.v0.net/configurator>.
+For full documentation, see <https://docs.v0.net/schema>.
 
 ## Requirements
 
-- NodeJS 20.9.0+
+- NodeJS 22.22.0+
 - ESM Modules only
-
-## Philosophy
-
-Unlike command-line oriented libraries that focus on expressive argument parsing, Configurator takes a
-data-first approach, and focuses on the "correctness" of the configured data that will be consumed by your
-application and its subsystems.
-
-The idea is that if the configuration system offers a strong contract for validating inputs
-against well-defined configurable fields, then the output can be trusted, and treated more like
-a data model. The final populated configuration should be exactly what was expected, no more, no less.
 
 ## Basic Usage
 
 ```bash
-npm install --save @versionzero/configurator
+npm install --save @versionzero/schema
 ```
 
-#### Example
+### Examples
 
-(Source can be found in the [examples directory](https://github.com/argh/configurator/tree/main/examples))
+(Source can be found in the [examples directory](https://github.com/argh/schema/tree/main/examples))
 
+#### Simple String Schema
+Here's a trivial schema that just enforces a capitalized greeting:
 ```javascript title="basics.js"
-import { Schema, Configurator } from '@versionzero/configurator';
+import { Schema, SchemaResolver } from '@versionzero/schema';
 
-const appName = 'basics';
+const resolver = new SchemaResolver();
 
-// Define your configuration schema using fluent API
-const schema = new Schema('object')
-  .property('debug', new Schema('boolean')
-    .meta('flagHint', 'D')
-    .meta('description', 'enable debug output')
-    .meta('advanced', true))
-  .property(appName, new Schema('object')
-    .property('verbose', new Schema('boolean')
-      .default(false)
-      .meta('description', 'enable verbose logging'))
-    .property('codes', new Schema('array')
+const helloSchema = await resolver.compile(
+  new Schema('string')
+    .normalizer('$title-case')
+    .validator({$matches: /^Hello.+/})
+);
+
+// Value processing runs all handlers, so this will be normalized: 
+const greeting = await helloSchema.process('hello world');
+console.log(greeting);  // Hello World 
+
+// Validation requires the input to already be correct.  This is valid...
+await helloSchema.validate('Hello Friend');
+
+// but this will throw a ValidationError (wrong case)
+await helloSchema.validate('hello world');
+```
+
+#### More complex...
+This schema defines the data structure of a meeting.  (Note how `ends` depends on `starts`!)
+```javascript title="basics.js"
+import crypto from 'node:crypto';
+import { Schema, SchemaResolver } from '@versionzero/schema';
+
+const resolver = new SchemaResolver();
+
+// you can define a schema to reference inline in multiple places...
+const meetingTextFieldSchema = new Schema('string')
+  .normalizer('$trim')
+  .validator({$length: {min: 1, max: 1024}});
+
+// or you can register it to the resolver to reference by name
+resolver.registerSchema('meeting-text', meetingTextFieldSchema);
+
+const meetingSchema = await resolver.compile(
+  new Schema('object')
+    .property('id', new Schema('string')
       .required()
-      .property('*', new Schema('string').validator('$alphanum'))
-      .meta('description', 'secret magic codes')))  
-  .property('server', new Schema('object')
-    .property('host', new Schema('string')
-      .default('127.0.0.1')
-      .meta('description', 'server host address')
-      .validator({$or: ['$ipv4', '$ipv6', '$reachable']}))
-    .property('port', new Schema('number')
-      .default(80)
-      .meta('description', 'server port')
-      .validator('$port'))
-    .property('protocol', new Schema('string')
-      .meta('description', 'server protocol')
-      .validator({$in: ['https', 'http']})));
-
-// Initialize the configurator with your schema
-const config = await new Configurator({schema}).configure({
-  appName,                                             // application name
-  defaults: {[appName]: {verbose: true}},              // low priority, but higher than schema defaults
-  env: process.env,                                    // (unnecessary, this is the default value)
-  argv: process.argv,                                  // (unnecessary, this is the default value)
-  overrides: {server: {protocol: 'https', port: 443}}  // highest priority
-});
-
-console.log('Configuration results:', config);
+      .default(() => crypto.randomUUID())
+      .normalizer(['$trim', '$lowercase'])
+      .validator('$uuid')
+    )
+    .property('title', new Schema(meetingTextFieldSchema)    // extend a schema instance
+      .required()
+      .default('Untitled Meeting')
+    )
+    .property('description', new Schema('meeting-text'))     // or extend a named schema
+    .property('starts', new Schema('date').required())
+    .property('ends', new Schema('date')
+        .required()
+        .validator({'$date-range': {min: {$reference: '^starts'}}})
+    )                                        
+    .property('attendees', new Schema('array')
+      .required()
+      .validator({$length: {min: 1}})
+      .property('*', new Schema('object')
+        .property('email', new Schema('string')
+          .required()
+          .validator('$email')
+        )
+        .property('response', new Schema('string')
+          .default('pending')
+          .validator({$in: ['accepted', 'declined', 'tentative', 'pending']})
+        )
+      )
+    )
+)
 ```
-
-Try running it with a mix of environment variables and command line options:
-
-```bash
-% export BASICS_SERVER_HOST=localhost
-% node basics.js -D --server-port 8081 --codes 5xx z10 123
-
-Configuration results:  {
-  debug: true,
-  basics: { verbose: true, codes: [ '5xx', 'z10', '123' ] },
-  server: { host: 'localhost', port: 443, protocol: 'https' }
+The meeting schema is usable both for validation (checking if data matches the schema rules):
+```javascript
+const meeting = {
+  id: '123e4567-e89b-12d3-a456-426614174000',
+  title: 'Weekly Team Meeting',
+  description: 'Weekly team meeting to discuss progress and upcoming projects.',
+  starts: new Date('2026-09-01T10:00:00'),
+  ends: new Date('2026-09-01T11:00:00'),
+  attendees: [
+    { email: 'john.doe@example.com', response: 'accepted' },
+    { email: 'jane.smith@example.com', response: 'declined' },
+    { email: 'ted.richards@example.com' },
+    { email: 'alice.johnson@example.com', response: 'tentative' }
+  ]
 }
+
+const validatedMeeting = await meetingSchema.validate(meeting);  // valid!
 ```
 
-See the full [documentation](https://docs.v0.net/configurator) for details on how the schema's configurables are
-mapped from sources like environment variables and command line arguments.
+as well as processing (attempt to convert input data to the valid format):
 
-Also see the [examples directory](https://github.com/argh/configurator/tree/main/examples) for more advanced usage patterns:
+```javascript
+const minimal = {
+  starts: '2027-01-01T10:00:00',
+  ends: '2027-01-01T11:00:00',
+  attendees: [ { email: 'john.doe@example.com' } ]
+}
 
-- Configuration file loading
-- Custom types and validators
-- Custom configuration sources
-- Conditional configuration
-- Dynamic configuration resolution
-- Command line "command" support
-- Selectors
-- Unions
+// would not validate as-is, but...
+const processedMeeting = await meetingSchema.process(minimal);
+
+/* Result is now valid - populated with defaults, date strings converted to Dates:
+{
+  id: '1f721f55-c075-485c-994c-96dbb30b035d',
+  title: 'Untitled Meeting',  
+  starts: 2027-01-01T18:00:00.000Z,
+  ends: 2027-01-01T19:00:00.000Z,
+  attendees: [ { email: 'john.doe@example.com', response: 'pending' } ]
+}
+ */
+```
+
+See the full [documentation](https://docs.v0.net/schema) for details.
+
+Also see the [examples directory](https://github.com/argh/schema/tree/main/examples) for more advanced usage patterns.
 
 ## Key Features
 
-**Schema-First Design with Fluent API**
+### Definition via Fluent API (or Data)
 
-: Define your configuration structure declaratively using composable `Schema` objects. The fluent API makes
-complex nested and variant structures intuitive to build, and dynamic resolution lets you handle different 
-configuration shapes based on runtime conditions. Unlike command-line-focused libraries, your schema becomes 
-the single source of truth for structure, validation, and transformation.
+Define your data structure declaratively using composable `Schema` objects.  The fluent API makes 
+complex nested and variant structures intuitive to build.  Or use a simple object definition, enabling 
+schemas to be exported by data consumers without introducing dependencies.
 
-**Composable Configuration Sources**
+### "Batteries Included"
 
-: Unlike libraries that focus on a single input method, `Configurator` treats each configuration source as a 
-first-class component. Each `ConfigurationSource` handles one concern (CLI args, env vars, JSON files, etc.) 
-while participating in a systematic priority resolution process. This eliminates the manual orchestration 
-typically required when combining multiple configuration approaches, and makes extending with additional 
-sources straightforward.
+Get started quickly with pre-built schemas corresponding to fundamental types, and a rich processor 
+library of operators and constraints (`$positive`, `$alphanum`, `$directory`, etc.). 
+As your needs grow, create or import libraries of reusable custom schemas and value processors to compose 
+complex processing pipelines.  You have complete control over all phases of processing; normalization,
+transformation, finalization, validation.
 
-**Simple to Start, Scales to Complex**
+(The system is expressive enough that it self-hosts - schemas are defined by a "schema schema"!)
 
-: Get started quickly with "batteries included" - command line parsing, environment variables, config files, and a rich
-validator library (`$positive`, `$alphanum`, `$directory`, etc.). As your needs grow, add custom types, 
-value processors, and sources. The normalization, transformation, and validation pipelines support both sync and async
-processing, enabling complex scenarios like lazy evaluation, async validation, and dynamic value resolution. 
-The architecture scales from simple apps to complex enterprise systems with secrets management, feature flags, and 
-multi-environment deployments.
+### Union Types, Selectors, and Conditionals
 
-**Union Types and Selectors for Dynamic Configuration**
+Easily handle scenarios where your output data structure varies at runtime.  Union schemas let you define 
+alternative schemas and multiple discrimination strategies.  Selectors and Conditionals provide
+different approaches to activating or deactivating schemas within a schema hierarchy.
 
-: Handle different configuration shapes and subsystem activation intelligently. Union types let you define 
-multiple schemas for the same property, with automatic resolution based on discriminator values. Selectors 
-enable hierarchical command structures where choosing one option activates related configuration sections.
-Perfect for plugins, deployment targets, CLI commands, or any scenario where your config structure varies 
-at runtime.
+### Dynamic/Late Resolution
 
-**Single Source of Truth: Configuration as a Data Model**
+Compose without coupling, verify without sharing types.  Schemas can be built declaratively with only
+named references to other schemas or processors.  Or provide dynamic values to ensure the validation process
+calls back to your code.  You can even add async processors without special fanfare; the library automatically
+handles deferred results, while optimizing any synchronous call graphs to incur no async overhead.
+Multi-pass processing enables complex mixtures of dynamic resolution and cross-referenced values. 
 
-: The structure of the validated output configuration object is intended to mirror an "idealized" config 
-file format for your application.  If a schema hierarchy is created to align with the structure of the 
-application and its subsystems, then each subsystem's configured properties will be nested inside a 
-child object.  This child object can then be used in isolation to safely initialize that subsystem, without
-extraneous data leaking in. This reduces the *"dig through a random bag of whatever"* output 
-generated by many other configuration libraries.
+### Schema as a Decoupled Contract
 
-**Built for Extension and Integration**
+Use schemas as an impartial bridge between data producers and data consumers.  This prevents the 
+architectural and maintenance headaches of validation logic being split across tiers, or implementation 
+details leaking between subsystems.  The data consumer uses the schema to advertise its requirements 
+in a way that upstream producers can enforce, enabling a decoupled contract.
 
-: The source architecture naturally accommodates additional configuration inputs as your requirements grow. 
-Whether you need to integrate with secrets management, parameter stores, feature flag systems, or database 
-configuration, the same priority resolution and validation pipeline applies. Custom sources participate as 
-first-class citizens alongside the built-in CLI, environment, and file sources.
+In modular applications, you can aggregate schemas exported from multiple subsystems to create a composite
+schema that acts as a canonical definition for configuration.  This application schema can then be 
+introspected, enabling automatic construction of interfaces for loading inputs (CLIs, editors, etc.)
 
-: For larger applications, the schema-first approach creates clean interfaces between subsystems. Each component 
-can define its own local configuration schema, and the validated output provides exactly the properties that 
-subsystem needs.
+### Designed for Extension and Integration
 
-: The [`ModuleManager`](https://github.com/argh/module-manager) (`@versionzero/module-manager`) package builds on this 
-foundation to enable **embedded declarative schemas**, **dependency injection**, and **lifecycle management** 
-for modular applications. But even standalone, `Configurator`'s architecture scales elegantly from simple CLI 
-tools to enterprise systems with complex configuration requirements.
+The pre-built schema types and value processors that are provided with the library are deliberately 
+not "special", and are all built using the public developer APIs.  This empowers you to easily 
+create your own libraries, where your custom definitions participate as first-class citizens,
+indistinguishable from the "fundamental" behaviors.   
+
+This library was originally created as the core of the [`Configurator`](https://github.com/argh/configurator) (`@versionzero/configurator`)
+system, which focuses on configuring applications using composed lists of configuration data sources
+(command line, environment, files, etc).  The `Configurator` is then embedded inside the 
+[`ModuleManager`](https://github.com/argh/module-manager) (`@versionzero/module-manager`) package, which extends application configuration
+with dependency injection and lifecycle management.
+
+**This project does not have a cute name, because you don't name your plumbing.**
+
+## Rationale
+
+Most schema libraries optimize for one of two things: runtime validation (Joi, Ajv)
+or compile-time type integration (Zod, Valibot). Both are useful, and if you're
+building a single application in TypeScript with a shared type definition between
+producer and consumer, Zod is probably what you want.
+
+This library optimizes for something different: **decoupled composition across
+subsystems that don't know about each other.**  
+
+_Read more about this [in the full documentation](https://docs.v0.net/schema/rationale)._ 
 
 ## License
 

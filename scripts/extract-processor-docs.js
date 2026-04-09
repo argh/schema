@@ -4,7 +4,7 @@
  *
  * For each JSDoc block containing `## $keyword`:
  *   - Strips `/** ... *\/` comment markers
- *   - Filters JSDoc-only annotation lines (@type, @import, etc.)
+ *   - Filters JSDoc-only annotation lines (@ type, @ import, etc.)
  *   - Writes `processors-output-md/{keyword}.md`
  *
  * Also writes `processors-output-md/index.md` with a table of all processors.
@@ -13,7 +13,7 @@
  */
 
 import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { join } from 'node:path';
 
 const PROCESSORS_DIR = new URL('../src/schema/builtin-processors/', import.meta.url).pathname;
 const OUTPUT_DIR = new URL('../processors-output-md/', import.meta.url).pathname;
@@ -30,6 +30,8 @@ const files = (await readdir(PROCESSORS_DIR))
 /**
  * Strip JSDoc comment delimiters and leading ` * ` from each line.
  * Returns the cleaned multi-line string.
+ * @param {string} block - The JSDoc block to clean
+ * @returns {string}
  */
 function stripCommentMarkers(block) {
   return block
@@ -44,6 +46,8 @@ function stripCommentMarkers(block) {
  * Filter annotation-only lines from extracted content, respecting code fences
  * so annotations inside ``` blocks are preserved.
  * Also trims leading/trailing blank lines.
+ * @param {string} content - The content to filter
+ * @returns {string}
  */
 function filterContent(content) {
   const lines = content.split('\n');
@@ -66,6 +70,8 @@ function filterContent(content) {
  * Extract a plain-text description from the lines following `## $keyword`
  * (up to the first blank line or `###` heading after content starts),
  * for use in the index table.
+ * @param {string[]} lines - The lines to extract description from
+ * @returns {string}
  */
 function extractDescription(lines) {
   let started = false;

@@ -1,4 +1,4 @@
-import { toCamelCase } from '../../utils.js';
+import { toCamelCase } from '../helpers/case.js';
 
 /**
  * ## $camel-case

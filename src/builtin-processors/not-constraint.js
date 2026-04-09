@@ -1,8 +1,9 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
+
 import { ValueProcessor } from "../value-processor/value-processor.js";
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { ConditionalExecutor } from '../executor/conditional-executor.js';
 import { Executor } from '../executor/executor.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $not

@@ -1,5 +1,6 @@
 import { Executor, toExecutor } from './executor.js';
-import { SchemaError } from '../schema-errors.js';
+
+import { SchemaError } from '../errors.js';
 
 /** @typedef {[key:string, executor:Executor]} ObjectExecutorEntry */
 

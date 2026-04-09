@@ -24,14 +24,14 @@ import { TraversalStateExecutor } from './traversal-state-executor.js';
 
 
 export const PROCESS_ENTER = /** @type {Executor<TraversalState>} */ (new StepExecutor([enter, checkSchema, defaults, normalize, checkInput, resolveUnion, checkCondition, preparePending, transformEarly]));
-export const PROCESS_EXIT = /** @type {Executor<TraversalState>} */ (new StepExecutor([transform,  checkRequired, finalize, validate, exit]));
+export const PROCESS_EXIT = /** @type {Executor<TraversalState>} */ (new StepExecutor([transform, finalize, checkRequired, validate, exit]));
 export const PROCESS_EXECUTOR = new TraversalStateExecutor(PROCESS_ENTER, PROCESS_EXIT);
 
 export const VALIDATE_ENTER = /** @type {Executor<TraversalState>} */ (new StepExecutor([enterExisting, resolveUnion, checkCondition, prepareExisting]));
 export const VALIDATE_EXIT = /** @type {Executor<TraversalState>} */ (new StepExecutor([checkRequired, validate, exit]));
 export const VALIDATE_EXECUTOR = new TraversalStateExecutor(VALIDATE_ENTER, VALIDATE_EXIT);
 
-export const SERIALIZE_ENTER = /** @type {Executor<TraversalState>} */ (new StepExecutor([enterInput, checkSchema, resolveUnion, checkCondition, serialize]));
+export const SERIALIZE_ENTER = /** @type {Executor<TraversalState>} */ (new StepExecutor([enter, checkSchema, serialize, resolveUnion, checkCondition ]));
 export const SERIALIZE_EXIT = /** @type {Executor<TraversalState>} */ (new StepExecutor([exit]));
 export const SERIALIZE_EXECUTOR = new TraversalStateExecutor(SERIALIZE_ENTER, SERIALIZE_EXIT);
 
@@ -39,9 +39,4 @@ export const PRELOAD_ENTER = /** @type {Executor<TraversalState>} */ (new StepEx
 export const PRELOAD_EXIT = /** @type {Executor<TraversalState>} */ (new StepExecutor([exit]));
 export const PRELOAD_EXECUTOR = new TraversalStateExecutor(PRELOAD_ENTER, PRELOAD_EXIT);
 
-// TODO or remove?  Unclear whether hierarchical .normalize() and .transform() are useful.
-export const NORMALIZE_ENTER = new StepExecutor();
-export const NORMALIZE_EXIT = new StepExecutor();
-export const TRANSFORM_ENTER = new StepExecutor();
-export const TRANSFORM_EXIT = new StepExecutor();
 

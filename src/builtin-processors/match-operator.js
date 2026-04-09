@@ -1,6 +1,7 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
+
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $match

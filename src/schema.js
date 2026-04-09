@@ -1,10 +1,10 @@
 import { toData } from './helpers/to-data.js';
 import { CompiledSchema } from './compiled-schema.js';
-import { deepValue } from '../utils.js';
-import { SchemaError, ValidationError } from './schema-errors.js';
+import { SchemaError, ValidationError } from './errors.js';
+import { deepValue } from './helpers/deep.js';
 
 /** @import { ValueProcessor, ValueProcessorFunction, ValueProcessorSpec } from './value-processor/value-processor.js' */
-/** @import { ISchemaProperties, ISchemaMetadata, ISchemaOptions, SchemaData, ISchema, } from './types.js' */
+/** @import { ISchemaMetadata, ISchemaOptions, SchemaData, ISchema, } from './types.js' */
 
 /** @typedef {ISchemaOptions} SchemaOptions */
 /** @typedef {ISchemaMetadata} SchemaMetadata */
@@ -23,9 +23,9 @@ import { SchemaError, ValidationError } from './schema-errors.js';
  */
 
 /**
- * Schema - defines a valid configuration
+ * Schema - allows the definition of structure and rules for data
  *
- * Essentially acts as a fluent builder, must be compiled by SchemaCompiler for use.
+ * Essentially acts as a fluent builder; must be compiled by SchemaCompiler for use.
  *
  * @typedef {import("./types.js").ISchema} ISchema
  * @augments {ISchema}
@@ -596,6 +596,22 @@ export class Schema
    */
   required(value) {
     this.options.required = value ?? true;
+    return this;
+  }
+
+  /**
+   * Mark this schema as defining an optional value (or not); the default is optional.
+   *
+   * (Syntactic sugar to negate required())
+   * Schema requirements are enforced during validation.
+   *
+   * Requirements are shallow; this can be changed via the deep() option.
+   *
+   * @param {boolean} [value]
+   * @returns {Schema}
+   */
+  optional(value) {
+    this.options.required = !(value);
     return this;
   }
 

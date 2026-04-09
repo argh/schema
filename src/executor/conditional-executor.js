@@ -1,5 +1,5 @@
 import { Executor, toExecutor, UNDEFINED_EXECUTOR } from './executor.js';
-import { isTruthy } from "../../utils.js";
+import { isTruthy } from '../helpers/truthy.js';
 
 /**
  * @template T
@@ -127,7 +127,7 @@ export class ConditionalExecutor extends Executor {
   }
 
   static CHECK_TRUTHY = Symbol('CHECK-TRUTHY');
-  static CHECK_DEFINED = Symbol('CHECK-UNDEFINED');
+  static CHECK_DEFINED = Symbol('CHECK-DEFINED');
   static PASS_RESULT = Symbol('PASS-RESULT');
   static PASS_ERROR = Symbol('PASS-ERROR');
 

@@ -1,5 +1,6 @@
-import { ConstraintError, ResolverError } from '../schema-errors.js';
+
 import { SchemaLocation } from "../schema-location.js";
+import { ConstraintError, ResolverError } from '../errors.js';
 
 /**
  * ## $length
@@ -10,9 +11,9 @@ import { SchemaLocation } from "../schema-location.js";
  * For strings, length is measured in characters. For arrays, length is measured in elements.
  *
  * ### Parameters
+ * - `exact` (number, optional): Exact required length. If specified, min/max are ignored.
  * - `min` (number, optional): Minimum length (inclusive). If omitted, no lower bound.
  * - `max` (number, optional): Maximum length (inclusive). If omitted, no upper bound.
- * - `exact` (number, optional): Exact required length. If specified, min/max are ignored.
  *
  * - With `{min: 3, max: 10}`: strings "abc" to "abcdefghij", arrays with 3-10 elements
  * - With `{exact: 5}`: string "hello", array [1,2,3,4,5]
@@ -25,11 +26,8 @@ import { SchemaLocation } from "../schema-location.js";
  * // Validate a username is between 3 and 32 characters
  * new Schema('string').validator({$length: {min: 3, max: 32}})
  *
- * // Array form [min, max]
- * new Schema('string').validator({$length: [1, 255]})
- *
  * // Require an exact number of elements in an array
- * new Schema('array').validator({$length: {exact: 3}})
+ * new Schema('array').validator({$length: 3})
  *
  * // Validate a fixed-length code (e.g., ISO country code)
  * new Schema('string').normalizer('$uppercase').validator({$length: {exact: 2}})
@@ -39,15 +37,18 @@ import { SchemaLocation } from "../schema-location.js";
  */
 export const LENGTH_CONSTRAINT = {
   keyword: 'length',
-  parameters: [ { parameter: 'min' }, { parameter: 'max'}, { parameter: 'exact'} ],
+  parameters: [ { parameter: 'exact', default: undefined, type: 'number' }, { parameter: 'min', default: undefined, type: 'number' }, { parameter: 'max', default: undefined, type: 'number' } ],
 
   process: (value, _target, _location, options) => {
     const { min, max, exact } = options.args;
     const length = Array.isArray(value) ? value.length : String(value).length;
     const unit = Array.isArray(value) ? 'elements' : 'characters';
 
-    if (exact !== undefined && length !== exact) {
-      throw new ConstraintError(`Length must be exactly ${exact} ${unit}`);
+    if (exact !== undefined) {
+      if (length !== exact) {
+        throw new ConstraintError(`Length must be exactly ${exact} ${unit}`);
+      }
+      return value;
     }
     if (min !== undefined && length < min) {
       throw new ConstraintError(`Length must be at least ${min} ${unit}`);

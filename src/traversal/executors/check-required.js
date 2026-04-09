@@ -1,5 +1,6 @@
 import { TraversalState } from '../traversal-state.js';
-import { ValidationError } from '../../schema-errors.js';
+
+import { ValidationError } from '../../errors.js';
 
 /**
  * @param {TraversalState} state

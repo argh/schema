@@ -1,8 +1,9 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
+import { Schema } from '../src/schema.js';
 
-import { SchemaError } from '../src/schema/schema-errors.js';
+
+import { SchemaError } from '../src/errors.js';
 
 describe('Schema - Basic Construction', function() {
 

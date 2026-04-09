@@ -1,15 +1,9 @@
 import { CompiledSchema } from './compiled-schema.js';
-import { SchemaResolver } from './schema-resolver.js';
-import { Schema, SchemaPolicy } from './schema.js';
-
-import {
-  copyUnionOptions, synthesizeKeyDiscrimination, synthesizeAutoDiscrimination,
-} from './compilation/union-compilation.js';
+import { Schema } from './schema.js';
 import { SchemaLocation } from "./schema-location.js";
-import { populateChildSelectorValues } from './compilation/selection-compilation.js';
-import { populateMetadata } from './compilation/metadata-compilation.js';
-import { normalizeSchema, transformSchema, validateSchema } from './compilation/schema-compilation.js';
-import { TraversalContext } from './traversal/index.js';
+import { SchemaResolver } from './schema-resolver.js';
+import { TraversalContext } from './traversal/traversal-context.js';
+import { ValueProcessor } from './value-processor/value-processor.js';
 import {
   FinalizeError,
   NormalizeError,
@@ -17,13 +11,18 @@ import {
   SchemaError,
   TransformError,
   ValidationError
-} from './schema-errors.js';
+} from './errors.js';
 import { isKeywordValueProcessorSpec } from './value-processor/spec.js';
-import { isEmpty, isPlainObject } from '../utils.js';
-import { ValueProcessor } from './value-processor/value-processor.js';
+import {
+  copyUnionOptions, synthesizeKeyDiscrimination, synthesizeAutoDiscrimination,
+} from './compilation/union-compilation.js';
+
+import { populateChildSelectorValues } from './compilation/selection-compilation.js';
+import { populateMetadata } from './compilation/metadata-compilation.js';
+import { normalizeSchema, transformSchema, validateSchema } from './compilation/schema-compilation.js';
 import { compileHandlers } from './compilation/handler-compilation.js';
 import { normalizeValues } from './compilation/values-compilation.js';
-import { formatValue } from "../errors.js";
+import { isEmpty, isPlainObject } from './helpers/object.js';
 
 /** @typedef {(inputSchema:CompiledSchema|Schema, targetSchema:CompiledSchema, location:SchemaLocation, options?:object) => Promise<Schema|CompiledSchema|import("./types.js").SchemaData|undefined>} InputSchemaProcessor */
 /** @typedef {(inputSchema:CompiledSchema, targetSchema:CompiledSchema, location:SchemaLocation, options?:object) => Promise<CompiledSchema|undefined>} OutputSchemaProcessor */
@@ -171,6 +170,7 @@ export class SchemaCompiler extends CompiledSchema {
 
     const schemaCompilerSchema = new Schema()
       .meta('compiler', 'root')
+      .required()
 /*
       .normalizer(
         async (inputSchema) => {
@@ -268,6 +268,7 @@ export class SchemaCompiler extends CompiledSchema {
     const schemaSchema = new Schema('object')
       .meta('compiler', 'schema')
       .opaque()
+      .required()
       .normalizer(normalizeSchema.bind(this))  // if we traverse again, we should get the cached version
 
       .normalizer(

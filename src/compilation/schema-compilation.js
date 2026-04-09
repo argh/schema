@@ -1,8 +1,8 @@
 import { CompiledSchema } from '../compiled-schema.js';
-import { SchemaCompiler } from "../schema-compiler.js";
-import { SchemaLocation } from "../schema-location.js";
+import { SchemaCompiler } from '../schema-compiler.js';
+import { SchemaLocation } from '../schema-location.js';
 import { Schema } from '../schema.js';
-import { SchemaCompilationError, SchemaError } from '../schema-errors.js';
+import { SchemaCompilationError } from '../errors.js';
 
 /**
  * Convert a schema to a simple object form compatible with the SchemaCompiler SchemaSchema assumptions

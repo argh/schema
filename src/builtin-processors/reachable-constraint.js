@@ -1,6 +1,7 @@
 import { lookup } from 'node:dns/promises';
 
-import { ConstraintError } from '../schema-errors.js';
+
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $reachable

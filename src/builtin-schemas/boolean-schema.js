@@ -1,5 +1,5 @@
 import { Schema } from '../schema.js';
-import { isTruthy } from '../../utils.js';
+import { isTruthy } from '../helpers/truthy.js';
 
 export const BOOLEAN_SCHEMA = new Schema()
   .option('type', 'boolean')

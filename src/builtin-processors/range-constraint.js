@@ -1,4 +1,5 @@
-import { ConstraintError, ResolverError } from '../schema-errors.js';
+
+import { ConstraintError, ResolverError } from '../errors.js';
 
 /**
  * ## $range
@@ -29,7 +30,7 @@ import { ConstraintError, ResolverError } from '../schema-errors.js';
  */
 export const RANGE_CONSTRAINT = {
   keyword: 'range',
-  parameters: [ { parameter: 'min' }, { parameter: 'max'}, { parameter: 'exact'} ],
+  parameters: [ { parameter: 'min', type: 'number', default: undefined }, { parameter: 'max', type: 'number', default: undefined } ],
 
   process: (value, _target, _location, options) => {
     const { min, max } = options.args;

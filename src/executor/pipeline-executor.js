@@ -1,6 +1,4 @@
 import { Executor, toExecutor } from './executor.js';
-import { deepEquals } from '../../utils.js';
-
 
 /**
  * @augments Executor<any>

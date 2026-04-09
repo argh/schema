@@ -1,7 +1,8 @@
 import { Executor } from "../executor/executor.js";
 import { stringify } from "../helpers/stringify.js";
 import { ValueProcessor } from './value-processor.js';
-import { isPrimitive } from '../../utils.js';
+import { isPrimitive } from '../helpers/object.js';
+
 
 /**
  * Wrap an existing executor as a ValueProcessor

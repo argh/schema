@@ -1,5 +1,5 @@
-import { ConstraintError } from '../schema-errors.js';
 import { parseDate } from '../helpers/parse-date.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * Reassemble a date from a `$date-object` field object.

@@ -8,10 +8,10 @@ import { SchemaLocation } from '../schema-location.js';
 
 import { TraversalState } from './traversal-state.js';
 import { debug } from '../helpers/debug-sink.js';
-import { behead } from '../../utils.js';
+import { behead } from '../helpers/path.js';
 import { CompiledSchema } from "../compiled-schema.js";
-import { SchemaError } from '../schema-errors.js';
 import { EMPTY } from '../constants.js';
+import { SchemaError } from '../errors.js';
 
 export class TraversalContext
 {

@@ -1,8 +1,8 @@
 import { EachExecutor } from "../executor/each-executor.js";
-import { ConstraintError } from '../schema-errors.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { Executor } from '../executor/executor.js';
 import { PipelineExecutor } from '../executor/pipeline-executor.js';
+import { ConstraintError } from '../errors.js';
 
 /**
  * ## $each
@@ -42,6 +42,7 @@ export const EACH_OPERATOR = {
   parameters: [{parameter: 'processor', required: true}],
   build: (args) => {
     const processor = (Array.isArray(args)? args[0] : args.processor) ?? new Executor();
+    // TODO - wrap the processor in a function that passes the original collection in the options
 
     const values = (Array.isArray(args)? args[1] : args.values) ?? new Executor();
 

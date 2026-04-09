@@ -1,4 +1,5 @@
 import { TraversalState } from '../traversal-state.js';
+import { EMPTY } from '../../constants.js';
 
 /**
  *
@@ -10,7 +11,7 @@ export function enter(state) {
   const parentState = state.parent;
 
   if (parentState) {
-    if (state.assignedInput === undefined) {
+    if (state.assignedInput === undefined || state.assignedInput === EMPTY) {
       // we generally have our assigned input pushed down
       const input = parentState.input?.[state.key];
 

@@ -1,8 +1,8 @@
 import { Executor, UNDEFINED_EXECUTOR } from "../executor/executor.js";
-import { ResolverError } from '../schema-errors.js';
 import { ConditionalExecutor } from '../executor/conditional-executor.js';
 import { ValueProcessor } from '../value-processor/value-processor.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
+import { ResolverError } from '../errors.js';
 
 /**
  * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'

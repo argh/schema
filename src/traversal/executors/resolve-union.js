@@ -1,7 +1,7 @@
 import { TraversalState } from '../traversal-state.js';
 
-import { UnionResolutionError } from '../../schema-errors.js';
 import { CompiledSchema } from "../../compiled-schema.js";
+import { UnionResolutionError } from '../../errors.js';
 
 /**
  * @param {TraversalState} state

@@ -1,9 +1,10 @@
 
 import { strict as assert } from 'assert';
-import { Schema, SchemaPolicy } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
+import { Schema, SchemaPolicy } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
 
-import { ValidationError } from '../src/schema/schema-errors.js';
+
+import { ValidationError } from '../src/errors.js';
 
 describe('Assignments - Incremental vs Staged Processing', function() {
   /** @type {SchemaResolver} */

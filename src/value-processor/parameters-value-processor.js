@@ -1,15 +1,25 @@
 import { ConstantExecutor, Executor, toExecutor } from '../executor/executor.js';
 import { ObjectExecutor } from '../executor/object-executor.js';
-import { SchemaError } from "../schema-errors.js";
 import { ValueProcessor } from './value-processor.js';
 import { SchemaLocation } from "../schema-location.js";
-import { ArrayExecutor } from '../executor/array-executor.js';
-import { isEmpty, isPlainObject, map } from '../../utils.js';
 import { ComposedValueProcessor } from './composed-value-processor.js';
+import { formatValue, SchemaError } from '../errors.js';
+import { map } from '../helpers/object.js';
 
 /** @typedef {[key:string, executor:Executor]} ObjectExecutorEntry */
 
 /**
+ * ParametersValueProcessor is an Executor that uses a list of parameter definitions to validate and execute
+ * provided argument Executors.
+ *
+ * Parameters are managed as follows:
+ * - The first optional parameter without an explicit default will use the pipeline value as its default.
+ * - If a type option is specified, that argument will be validated against that type.
+ * - Constant executors will be checked at construction.
+ * - If all parameters are passed constant executor arguments, the entire executor will be constant.
+ * - Receiving "undefined" as an argument value at runtime should not be interpreted as a missing argument,
+ *   as it may simply indicate that the value is not yet available (but may become available later.)
+ *
  * @augments {ValueProcessor}
  */
 export class ParametersValueProcessor extends ValueProcessor {
@@ -60,12 +70,42 @@ export class ParametersValueProcessor extends ValueProcessor {
       }
     }
 
+    // Parameter sequence matters!
+    let considerUsingInput = true;
+    let handlingUndefaultedOptionals = false;
+
     for (let p = 0; p < parameters.length; ++p) {
-      if (processorObject[parameters[p].parameter] === undefined && parameters[p].default !== undefined) {
+      const hasDefault = parameters[p].hasOwnProperty('default');  // we want to be able to explicitly have an undefined default
+      if (parameters[p].required) {
+        if (handlingUndefaultedOptionals) {
+          throw new SchemaError(`Required parameter ${parameters[p].parameter} cannot follow optional parameter`);
+        }
+      }
+      else if (!hasDefault) {
+        if (handlingUndefaultedOptionals) {
+          considerUsingInput = false;
+        }
+        handlingUndefaultedOptionals = true;
+      }
+      if (processorObject[parameters[p].parameter] === undefined && hasDefault) {
         processorObject[parameters[p].parameter] = new ComposedValueProcessor(new ConstantExecutor(parameters[p].default), parameters[p].default);
       }
-      if (processorObject[parameters[p].parameter] === undefined && parameters[p].required) {
-        throw new SchemaError(`Missing required argument for parameter ${parameters[p].parameter}`);
+
+      if (processorObject[parameters[p].parameter] === undefined) {
+        if (parameters[p].required) {
+          throw new SchemaError(`Missing required argument for parameter ${parameters[p].parameter}`);
+        }
+        if (handlingUndefaultedOptionals && considerUsingInput && !hasDefault) {
+          processorObject[parameters[p].parameter] = new ComposedValueProcessor(new Executor(), '$input');
+          considerUsingInput = false;
+        }
+      }
+
+      if (processorObject[parameters[p].parameter]?.isConstant && parameters[p].type !== undefined) {
+        const value = processorObject[parameters[p].parameter].execute(true);
+        if (parameters[p].type !== undefined && value !== undefined && typeof value !== parameters[p].type) {
+          throw new SchemaError(`Invalid ${parameters[p].type} type for parameter "${parameters[p].parameter}"`, {value});
+        }
       }
     }
     this.#executor = new ObjectExecutor(processorObject);
@@ -87,15 +127,24 @@ export class ParametersValueProcessor extends ValueProcessor {
 
   }
 
-  #check(args) {
+  // Note: required / default are compilation checks, not runtime!
+  // All processors should expect they may receive undefined argument values, as sometimes they are resolved
+  // dynamically and may not have a value yet.  Some processors may treat this as an error and throw, others
+  // may simply return undefined.  If an argument having an undefined value might lead to surprising results,
+  // it should be guarded externally.  For example:
+  //
+  // .validator({$length: {min: {$reference: '^^.settings.minimum'}}})
+  //
+  // It may be the case that the reference value is not set, which would result in $length not enforcing
+  // a minimum at all.  To ensure it only gets set when the dependency is available, it should be written as:
+  //
+  // .validator({$require: {$reference: '^^.settings.minimum'}})
 
+  #check(args) {
     for (const p of this.#parameters) {
-      if (args[p.parameter] === undefined) {
-        if (p.default !== undefined) {
-          args[p.parameter] = p.default;
-        }
-        else if (p.required) {
-          throw new SchemaError(`Undefined value provided for required parameter ${p.parameter}`)
+      if (args[p.parameter] !== undefined) {
+        if (p.type && (typeof args[p.parameter] !== p.type)) {
+          throw new SchemaError(`Invalid type for parameter ${p.parameter}, expected ${p.type}`)
         }
       }
     }

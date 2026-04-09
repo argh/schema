@@ -1,8 +1,9 @@
-import { ConstraintError, SchemaError } from '../schema-errors.js';
+
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { ArrayExecutor } from '../executor/array-executor.js';
-import { map } from '../../utils.js';
+import { map } from '../helpers/object.js';
+import { ConstraintError, SchemaError } from '../errors.js';
 
 /**
  * ## $pick

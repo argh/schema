@@ -1,9 +1,10 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
 
-import { SchemaError } from '../src/schema/schema-errors.js';
+
+import { SchemaError } from '../src/errors.js';
 
 describe('Schema Compilation - Conditionals', function() {
   /** @type {SchemaResolver} */

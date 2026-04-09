@@ -1,8 +1,8 @@
-import { SchemaError } from '../schema-errors.js';
-import { formatValue } from '../../errors.js';
+import { formatValue } from '../errors.js';
 import { ParametersValueProcessor } from '../value-processor/parameters-value-processor.js';
 import { ParameterizedValueProcessor } from '../value-processor/parameterized-value-processor.js';
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
+import { SchemaError } from '../errors.js';
 
 /**
  * ## $compile
@@ -20,7 +20,7 @@ import { FunctionValueProcessor } from '../value-processor/function-value-proces
  *
  * ### Example
  * ```js
- * import { Schema } from '@versionzero/configurator';
+ * import { Schema } from '@versionzero/schema';
  *
  * // Compile a fixed schema and feed it into $process
  * const portSchema = new Schema('number').validator({$range: {min: 1, max: 65535}});

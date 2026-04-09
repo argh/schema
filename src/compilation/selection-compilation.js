@@ -1,6 +1,6 @@
-import { CompiledSchema } from "../compiled-schema.js";
-import { SchemaLocation } from "../schema-location.js";
-import { SchemaCompilationError, SchemaError } from '../schema-errors.js';
+import { CompiledSchema } from '../compiled-schema.js';
+import { SchemaLocation } from '../schema-location.js';
+import { SchemaCompilationError } from '../errors.js';
 
 // TODO - Consider making selection values default to '$name' rather than using true as a signal.
 //        (This could enable making the synthesized condition be an arbitrary value processor pipeline!)

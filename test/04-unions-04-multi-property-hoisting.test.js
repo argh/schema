@@ -1,7 +1,7 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
 
 describe('Unions: Multi-Property Hoisting', function() {
   /** @type {SchemaResolver} */

@@ -1,8 +1,8 @@
 
 import { strict as assert } from 'assert';
-import { Schema, SchemaPolicy } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { ConstraintError, NormalizeError, TransformError, ValidationError } from '../src/schema/schema-errors.js';
+import { Schema, SchemaPolicy } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { ConstraintError, NormalizeError, TransformError, ValidationError } from '../src/errors.js';
 
 describe('Schema Compilation - Handler Pipelines', function() {
   /** @type {SchemaResolver} */

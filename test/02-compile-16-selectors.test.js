@@ -1,10 +1,9 @@
 
 import { strict as assert } from 'assert';
-import { Schema } from '../src/schema/schema.js';
-import { SchemaResolver } from '../src/schema/schema-resolver.js';
-import { assertErrorMessageInCauseChain } from '../src/errors.js';
-import { SchemaLocation } from '../src/schema/schema-location.js';
-import { SchemaError, ValidationError } from '../src/schema/schema-errors.js';
+import { Schema } from '../src/schema.js';
+import { SchemaResolver } from '../src/schema-resolver.js';
+import { assertErrorMessageInCauseChain, SchemaError, ValidationError } from '../src/errors.js';
+import { SchemaLocation } from '../src/schema-location.js';
 
 describe('Schema Compilation - Selectors and Selections', function() {
   /** @type {SchemaResolver} */
