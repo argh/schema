@@ -339,6 +339,7 @@ export class TraversalState
     this.#value = undefined;
     this.#processed = false;
     this.#options = undefined;
+    this.#required = undefined;
     this.context.update();
   }
 

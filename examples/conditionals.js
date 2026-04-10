@@ -129,7 +129,7 @@ await expectUrlFails(okSchema3, 'mailto:user@domain.com');
 
 const base = new Schema('any')
   .default(true)
-  .normalizer({$reference: 'input'})
+  .normalizer({$reference: '/input'})
 
 
 function isPositive(v) {
@@ -191,7 +191,7 @@ assert.deepEqual(v_$if_bad, {input: 666, p1: 666, p4: 'no', p5: 'no', p6: 666});
 // and want to process the input differently depending on the result.
 
 const distanceSchema = new Schema('number')
-  .normalizer({$if: [{$pipeline: [{$reference: 'units'}, {$eq: 'feet'}]}, v => (v * 0.3048), v => (v * 1)]})
+  .normalizer({$if: [{$pipeline: [{$reference: '^units'}, {$eq: 'feet'}]}, v => (v * 0.3048), v => (v * 1)]})
 
 const s_$if_rationale = await resolver.compile(
   new Schema('object')
