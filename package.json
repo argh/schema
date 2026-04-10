@@ -4,7 +4,10 @@
   "description": "A composable schema library for Node.js that supports asynchronous processing",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./helpers": "./src/helpers/index.js",
+    "./errors": "./src/errors.js",
+    "./types": "./src/types.js"
   },
   "repository": {
     "type": "git",
