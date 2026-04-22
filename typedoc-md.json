@@ -3,7 +3,7 @@
   "extends": ["./typedoc.json"],
   "plugin": ["typedoc-plugin-markdown"],
   "out": "docs-output-md",
-  "router": "member",
+  "router": "kind",
   "entryFileName": "index",
   "hidePageHeader": true,
   "hideBreadcrumbs": false,
