@@ -315,3 +315,17 @@ jobs:
             See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: false
           prerelease: false
+
+      # ── Trigger downstream docs build ──────────────────────────
+      # Uncomment when ready to auto-rebuild docs on release.
+      # Requires a PAT or GitHub App token with `repo` scope on the
+      # docs repo — the default GITHUB_TOKEN is scoped to this repo only.
+      #
+      # - name: Trigger docs rebuild
+      #   if: steps.version.outputs.is_release == 'true'
+      #   run: |
+      #     gh api repos/argh/docs.v0.net/dispatches \
+      #       -f event_type=schema-release \
+      #       -f "client_payload[version]=${{ steps.version.outputs.new_version }}"
+      #   env:
+      #     GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
