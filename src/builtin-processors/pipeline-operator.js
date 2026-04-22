@@ -19,7 +19,7 @@ import { ResolverError } from '../errors.js';
  * schema compiler to aggregate handler arrays into single compiled processors.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications to execute in sequence.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications to execute in sequence.
  *   Each element can be a string keyword (e.g., `'$trim'`), a parameterized processor object
  *   (e.g., `{$range: {min: 0}}`), a RegExp, or a function.
  *

@@ -54,7 +54,7 @@ function generateBuilderFunction(keyword, joiner, builder) {
  * See `$any` if you want to check for success (defined value) instead of truthiness
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, at least one of which must return a truthy value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, at least one of which must return a truthy value.
  *
  * ### Example
  * ```js
@@ -107,7 +107,7 @@ export const OR_CONSTRAINT = {
  * See `$all` if you want to check for success (defined value) instead of truthiness
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, all of which must return a truthy value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, all of which must return a truthy value.
  *
  * ### Example
  * ```js
@@ -158,7 +158,7 @@ export const AND_CONSTRAINT = {
  * See `$or` if you want to check for truthiness instead of a defined value.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, at least one of which must return a defined value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, at least one of which must return a defined value.
  *
  * ### Example
  * ```js
@@ -211,7 +211,7 @@ export const ANY_CONSTRAINT = {
  * See `$and` if you want to check for truthiness instead of defined values.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, all of which must return a defined value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, all of which must return a defined value.
  *
  * ### Example
  * ```js
@@ -263,7 +263,7 @@ export const ALL_CONSTRAINT = {
  * See `$one` if you want to check for success (defined value) instead of truthiness.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, exactly one of which must return a truthy value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, exactly one of which must return a truthy value.
  *
  * ### Example
  * ```js
@@ -313,7 +313,7 @@ export const EXCLUSIVE_CONSTRAINT = {
  * See `$exclusive` if you want to check for truthiness instead of a defined value.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications, exactly one of which must return a defined value.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications, exactly one of which must return a defined value.
  *
  * ### Example
  * ```js
@@ -365,7 +365,7 @@ export const ONE_CONSTRAINT = {
  * `$first` is basically an alias for `{$gate: {$any: [...]}}`.
  *
  * ### Parameters
- * - `processors` (Array<ProcessorSpec>, required): Array of processor specifications to try in order.
+ * - `processors` (`Array<ProcessorSpec>`, required): Array of processor specifications to try in order.
  *
  * ### Example
  * ```js
