@@ -9,7 +9,6 @@
   "out": "docs-output",
   "readme": "none",
   "exclude": [
-    "**/node_modules/**",
     "**/coverage/**",
     "**/test/**",
     "**/*.test.js",
