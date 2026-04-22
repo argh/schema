@@ -67,6 +67,79 @@ function filterContent(content) {
 }
 
 /**
+ * Escape bare curly braces in prose so MDX doesn't interpret them as JSX expressions.
+ *
+ * Strategy:
+ *   - Inside code fences or inline backticks: leave alone
+ *   - A matched `{...}` pair under 80 chars with "safe" content (word chars, spaces,
+ *     dots, commas, colons, hyphens): wrap the whole group in backticks
+ *   - Anything else: backslash-escape individual `{` and `}` chars
+ *
+ * @param {string} content - Markdown content to escape
+ * @returns {string}
+ */
+function escapeMdxBraces(content) {
+  const lines = content.split('\n');
+  const result = [];
+  let inFence = false;
+
+  for (const line of lines) {
+    if (line.trimStart().startsWith('```')) inFence = !inFence;
+    if (inFence) {
+      result.push(line);
+      continue;
+    }
+
+    // Process the line in segments, preserving inline backtick spans
+    let out = '';
+    let i = 0;
+    while (i < line.length) {
+      // Skip inline backtick spans
+      if (line[i] === '`') {
+        const end = line.indexOf('`', i + 1);
+        if (end !== -1) {
+          out += line.slice(i, end + 1);
+          i = end + 1;
+          continue;
+        }
+      }
+
+      // Look for bare { ... } pairs
+      if (line[i] === '{') {
+        const close = line.indexOf('}', i + 1);
+        if (close !== -1 && close - i < 80) {
+          const inner = line.slice(i, close + 1);
+          // Safe content: word chars, spaces, dots, commas, colons, hyphens, slashes
+          if (/^\{[\w .,:/$@^-]+\}$/.test(inner)) {
+            out += '`' + inner + '`';
+            i = close + 1;
+            continue;
+          }
+        }
+        // Lone or unsafe brace — backslash escape
+        out += '\\{';
+        i++;
+        continue;
+      }
+
+      // Escape lone closing braces too
+      if (line[i] === '}') {
+        out += '\\}';
+        i++;
+        continue;
+      }
+
+      out += line[i];
+      i++;
+    }
+
+    result.push(out);
+  }
+
+  return result.join('\n');
+}
+
+/**
  * Extract a plain-text description from the lines following `## $keyword`
  * (up to the first blank line or `###` heading after content starts),
  * for use in the index table.
@@ -90,6 +163,8 @@ function extractDescription(lines) {
     .join(' ')
     .replace(/`/g, '')        // strip backtick formatting for plain table cell
     .replace(/\*\*/g, '')     // strip bold markers
+    .replace(/\{/g, '\\{')   // escape bare braces for MDX safety
+    .replace(/\}/g, '\\}')
     .substring(0, 120)
     .trim();
 }
@@ -114,7 +189,7 @@ for (const filename of files) {
     const keyword = kwMatch[1];
 
     const contentLines = lines.slice(headerIdx);
-    const content = filterContent(contentLines.join('\n'));
+    const content = escapeMdxBraces(filterContent(contentLines.join('\n')));
     const description = extractDescription(contentLines.slice(1));
 
     const outputPath = join(OUTPUT_DIR, `${keyword}.md`);
