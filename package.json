@@ -3,6 +3,14 @@
   "version": "0.2.1-main.20",
   "description": "A composable schema library for Node.js that supports asynchronous processing",
   "main": "./src/index.js",
+  "files": [
+    "src/**",
+    "scripts/**",
+    "typedoc.json",
+    "typedoc-md.json",
+    "LICENSE",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.js",
     "./helpers": "./src/helpers/index.js",

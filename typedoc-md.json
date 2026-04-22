@@ -3,9 +3,18 @@
   "extends": ["./typedoc.json"],
   "plugin": ["typedoc-plugin-markdown"],
   "out": "docs-output-md",
-  "outputFileStrategy": "modules",
-  "membersWithOwnFile": ["Class", "Enum", "Interface"],
+  "router": "member",
+  "entryFileName": "index",
   "hidePageHeader": true,
   "hideBreadcrumbs": false,
-  "hidePageTitle": false
+  "hidePageTitle": false,
+  "parametersFormat": "table",
+  "classPropertiesFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "typeDeclarationFormat": "table",
+  "indexFormat": "table",
+  "tableColumnSettings": {
+    "hideSources": true,
+    "hideModifiers": true
+  }
 }

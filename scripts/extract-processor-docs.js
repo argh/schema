@@ -15,7 +15,7 @@
 import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'node:path';
 
-const PROCESSORS_DIR = new URL('../src/schema/builtin-processors/', import.meta.url).pathname;
+const PROCESSORS_DIR = new URL('../src/builtin-processors/', import.meta.url).pathname;
 const OUTPUT_DIR = new URL('../processors-output-md/', import.meta.url).pathname;
 
 // JSDoc annotation lines to strip from extracted output (not user-facing content)
