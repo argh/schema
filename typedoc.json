@@ -2,10 +2,8 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
     "src/index.js",
-    "src/builtin-schemas/**",
     "src/types.js",
-    "src/errors.js",
-    "src/helpers/**"
+    "src/errors.js"
   ],
   "entryPointStrategy": "expand",
   "out": "docs-output",
