@@ -6,6 +6,7 @@
   "files": [
     "src/**",
     "scripts/**",
+    "tsconfig.json",
     "typedoc.json",
     "typedoc-md.json",
     "LICENSE",
