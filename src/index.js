@@ -1,7 +1,10 @@
 // Copyright 2026 Version Zero | github.com/argh
 // SPDX-License-Identifier: Apache-2.0
 
-/** @module schema */
+/**
+ * @module
+ * @mergeModuleWith <project>
+ */
 
 export { CompiledSchema } from './compiled-schema.js';
 export { Schema, SchemaPolicy } from './schema.js';
