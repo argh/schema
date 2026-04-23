@@ -43,6 +43,7 @@ try {
     import('./hostname-constraint.js'),
     import('./http-url-constraint.js'),
     import('./in-constraint.js'),
+    import('./instanceof-constraint.js'),
     import('./index-by-operator.js'),
     import('./input-operator.js'),
     import('./integer-constraint.js'),

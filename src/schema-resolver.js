@@ -37,7 +37,7 @@ import { ParametersValueProcessor } from './value-processor/parameters-value-pro
 import { DefinedValueProcessor } from './value-processor/defined-value-processor.js';
 import { ConstraintError, ResolverError, SchemaError } from './errors.js';
 import { toKebabCase } from './helpers/case.js';
-import { isEmpty, isPlainObject, map } from './helpers/object.js';
+import { isEmpty, isNativeClass, isPlainObject, map } from './helpers/object.js';
 
 /** @import { SchemaData } from './types.js' */
 /** @import { ValueProcessorDefinition, ValueProcessorSpec, ValueProcessorBuilder, ValueProcessorFunction, ValueProcessorArgs, ValueProcessorParameter, KeywordValueProcessorSpec } from './value-processor/value-processor.js' */
@@ -369,6 +369,9 @@ export class SchemaResolver
     }
     else if (typeof spec === 'object' && typeof spec.process === 'function') {
       valueProcessor = new DefinedValueProcessor(spec);
+    }
+    else if (isNativeClass(spec)) {
+      valueProcessor = new ComposedValueProcessor(new ConstantExecutor(spec), spec, spec.name);
     }
     else if (typeof spec === 'function') {
       valueProcessor = new FunctionValueProcessor(spec);

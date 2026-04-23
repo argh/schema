@@ -83,12 +83,17 @@ export function isConstructible(f) {
 }
 
 /**
+ * Returns true for ES class syntax (`class Foo {}`) and native builtin
+ * constructors (`Map`, `Set`, `Error`, etc.) — i.e. functions that are
+ * meant to be used with `new` and should not be invoked as plain callbacks.
  * @param {any} f
  * @returns {boolean}
  */
 export function isNativeClass(f) {
-  return typeof f === 'function' &&
-         /^class\s/.test(Function.prototype.toString.call(f));
+  if (typeof f !== 'function') return false;
+  const str = Function.prototype.toString.call(f);
+  return /^class\s/.test(str) ||
+         (/\[native code\]/.test(str) && f.prototype?.constructor === f);
 }
 
 /**
