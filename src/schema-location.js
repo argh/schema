@@ -1,6 +1,15 @@
 import { CompiledSchema } from './compiled-schema.js';
 import { behead } from './helpers/path.js';
 
+/**
+ * The SchemaLocation tracks the schema and parent/child relationships for a given traversal path.
+ *
+ * Schemas can be linked into a hierarchy in multiple positions, so they have no static "parent".
+ * However, traversal builds an implicit hierarchy of locations that each then refer to a schema (if known),
+ * enabling access to any schema within the location hierarchy, including the parent.
+ *
+ * The current location is passed to value processors, effectively acting as a sort of "cursor".
+ */
 export class SchemaLocation {
 
   /** @type {Map<string,SchemaLocation>} */

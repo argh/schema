@@ -13,6 +13,7 @@ import { SchemaError } from '../errors.js';
  * - `path` (string, required): path from the current schema into the top-level target object; must be a valid
  *   schema path (dot-separated, supports / for absolute or ^ for parents).
  * - `pending` (boolean, optional, default: false): If true will fall back to any pending value not yet in the target data.
+ * - `completed` (boolean, optional, default: false): If true, will only return a value if the reference is completed (useful for checking if all children are handled).
  *
  * ### Example
  * ```js
@@ -40,7 +41,7 @@ import { SchemaError } from '../errors.js';
  */
 export const REFERENCE_OPERATOR = {
   keyword: 'reference',
-  parameters: [{parameter: 'path', required: true}, {parameter: 'pending', required: false, default: false}],
+  parameters: [{parameter: 'path', required: true}, {parameter: 'pending', required: false, default: false}, {parameter: 'completed', required: false, type: 'boolean', default: false}],
   process: (_, target, location, options) => {
     const path = options.args.path;
     if (path === undefined) {
@@ -48,10 +49,18 @@ export const REFERENCE_OPERATOR = {
     }
     const state = options.state.getRelativeState(path);
 
+    const requireCompleted = options.args.completed;
+
     if (state === undefined) {
+      if (requireCompleted) {
+        return undefined;  // welp.
+      }
       // We're lost.  Maybe we can find it in the target data?
       const resolvedLocation = location.relative(path);
       return resolvedLocation? deepValue(target, resolvedLocation.path) : undefined;
+    }
+    if (requireCompleted && !state.completed) {
+      return undefined;
     }
     if (state.value !== undefined) {
       return state.value;
