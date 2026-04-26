@@ -38,6 +38,8 @@ import { Executor } from './executor/executor.js';
   * @property {SchemaFundamentalType} [type] - should only be set on the core types supported by the schema
   * @property {function(string,ISchema):void} [compileHook] - a function called during schema compilation
   * @property {boolean} [allowEmpty] - whether an array type or string type can be empty
+  * @property {boolean} [allowUndefined] - whether undefined values can be passed through this schema
+  * @property {boolean} [allowErrors] - whether to throw when a processor returns an Error, or treat it as a legal value
   * @property {boolean} [strict] - whether to do strict typechecking (defaults to true; must be explicitly false to be "lax")
   * @property {boolean} [reference] - disallow direct assignment; value will be inherited from a parent
   * @property {boolean} [required] - flag indicating whether this field is required

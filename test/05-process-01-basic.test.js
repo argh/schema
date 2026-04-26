@@ -148,5 +148,30 @@ describe('Process - Basic Value Processing', function() {
 
       assert.deepStrictEqual(result, [1, 2, 3]);
     });
+
+    it('should not run extra passes for straightforward schemas', async function() {
+      const schema = await resolver.compile(
+        new Schema('string')
+          .normalizer(v => `n1(${v})`)
+          .normalizer(v => `n2(${v})`)
+          .normalizer([v => `n3(${v})`, v => `n4(${v})`])
+          .transformer(v => `t1(${v})`)
+          .transformer(v => `t2(${v})`)
+          .finalizer(v => `f(${v})`)
+          .option('revalidate', false)
+          .validator([v => `v1(${v})`, v => `v2(${v})`])
+      );
+
+      const compiled = await resolver.compile(schema);
+
+      const result = await compiled.process('ABC');
+
+      assert.strictEqual(result, 'v2(v1(f(t2(t1(n4(n3(n2(n1(ABC)))))))))');
+
+      const validated = await compiled.validate('ABC');
+
+      assert.strictEqual(validated, 'v2(v1(ABC))');
+    })
   });
+
 });

@@ -26,6 +26,8 @@ import { ConstraintError, ResolverError } from '../errors.js';
  * new Schema('number').validator({$range: {max: 255}})
  * ```
  *
+ * See also: `$positive` and `$negative` for common named ranges.
+ *
  * @type {import("../value-processor/value-processor.js").ValueProcessorDefinition}
  */
 export const RANGE_CONSTRAINT = {

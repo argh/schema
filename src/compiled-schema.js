@@ -525,6 +525,10 @@ export class CompiledSchema
     if (location.schema !== this) {
       return location.schema._checkCondition(value, target, location, options);
     }
+    if (value instanceof Error && !this.options.allowErrors) {
+      return false;
+    }
+
     const conditional = this.getValueProcessor('conditions');
 
     if (!conditional) {
@@ -532,12 +536,14 @@ export class CompiledSchema
     }
     try {
       const result = conditional.execute(value, target, location, options);
-
       if (result instanceof Promise) {
         return result.then(
-          resolved => isTruthy(resolved),
+          resolved => (resolved instanceof Error && !this.options.allowErrors)? false : isTruthy(resolved),
           _ => false
         );
+      }
+      if (result instanceof Error && !this.options.allowErrors) {
+        return false;
       }
       return isTruthy(result);
     }
@@ -584,6 +590,21 @@ export class CompiledSchema
     return Boolean(finalizers && Array.isArray(finalizers) && finalizers.length);
   }
 
+  _checkValue(value, ErrorClass) {
+    if (value instanceof Error && !this.options.allowErrors) {
+      if (ErrorClass && value instanceof ErrorClass) {
+        throw value;
+      }
+      else {
+        const err = new ErrorClass(value.message, {cause: value});
+        Error?.captureStackTrace(err, this._checkValue);
+        throw err;
+      }
+
+    }
+    return value;
+  }
+
   /**
    * Use the registered discriminator to return a matching union schema, or undefined if the union cannot be resolved.
    * Discriminator functions must return either one of the unionSchema members, a unionSchema key, or undefined.
@@ -606,6 +627,15 @@ export class CompiledSchema
     if (!this.isUnion || !discriminator) {
       return undefined;
     }
+
+    if (value instanceof Error && !this.options.allowErrors) {
+      if (options?.strict) {
+        throw value;
+      }
+      return undefined;
+    }
+
+
     let result;
     try {
       result = discriminator.execute(value, target, location, options);
@@ -677,6 +707,10 @@ export class CompiledSchema
     if (location.schema !== this) {
       return location.schema._normalizeValue(value, target, location, options);
     }
+    if (value instanceof Error && !this.options.allowErrors) {
+      throw new NormalizeError(value.message, {cause: value});
+    }
+
     const dynamic = options?.dynamic ?? this.options?.dynamic ?? true;  // todo - make dynamic default to false?
 
     if ((typeof value === 'function' || value instanceof ValueProcessor) && dynamic && !options.compiling) {
@@ -718,11 +752,11 @@ export class CompiledSchema
 
     if (result instanceof Promise) {
       return result.then(
-        resolved => resolved,
+        resolved => this._checkValue(resolved, NormalizeError),
         rejected => { throw new NormalizeError('Unable to normalize', {value, location, cause: rejected})}
       );
     }
-    return result;
+    return this._checkValue(result);
   }
 
   /**
@@ -787,6 +821,10 @@ export class CompiledSchema
     if (location.schema !== this) {
       return location.schema._transformValue(value, target, location, options);
     }
+    if (value instanceof Error && !this.options.allowErrors) {
+      throw new TransformError(value.message, {cause: value});
+    }
+
     if (this.isImplicit) {
       throw new TransformError('Cannot transform a value for an implicit schema', {location});
     }
@@ -807,11 +845,11 @@ export class CompiledSchema
     }
     if (result instanceof Promise) {
       return result.then(
-        resolved => resolved,
+        resolved => this._checkValue(resolved, TransformError),
         rejected => { throw new TransformError('Unable to transform', {value, location, cause: rejected}) }
       );
     }
-    return result;
+    return this._checkValue(result, TransformError);
   }
   /**
    * Transform a normalized input value for the final target based on this schema and provided context.
@@ -863,6 +901,10 @@ export class CompiledSchema
     if (location.schema !== this) {
       return location.schema._finalizeValue(value, target, location, options);
     }
+    if (value instanceof Error && !this.options.allowErrors) {
+      throw new FinalizeError(value.message, {cause: value});
+    }
+
     if (this.isImplicit) {
       throw new TransformError('Cannot finalize a value for an implicit schema', {location});
     }
@@ -882,11 +924,11 @@ export class CompiledSchema
     }
     if (result instanceof Promise) {
       return result.then(
-        resolved => resolved,
+        resolved => this._checkValue(resolved, FinalizeError),
         rejected => { throw new FinalizeError('Unable to finalize', {value, location, cause: rejected}) }
       );
     }
-    return result;
+    return this._checkValue(result, FinalizeError);
   }
   /**
    * Finalize a transformed input value by running any necessary post-processing steps.
@@ -938,6 +980,9 @@ export class CompiledSchema
     if (value === null || value === undefined) {
       return value;
     }
+    if (value instanceof Error && !this.options.allowErrors) {
+      throw new ValidationError(value.message, {cause: value});
+    }
 
     const validator = this.getValueProcessor('validators');
 
@@ -963,7 +1008,7 @@ export class CompiledSchema
           if (resolved !== value && resolved !== undefined && revalidate) {
             return this._validateValue(resolved, target, location, {...options, revalidate: false})
           }
-          return (resolved === undefined)? value : resolved;
+          return (resolved === undefined)? value : this._checkValue(resolved, ValidationError);
         }, // validation cannot clear data
         rejected => {
           if (rejected instanceof ValidationError) {
@@ -976,7 +1021,7 @@ export class CompiledSchema
     if (result !== value && result !== undefined && revalidate) {
       return this._validateValue(result, target, location, {...options, revalidate: false})
     }
-    return (result === undefined)? value : result;
+    return (result === undefined)? value : this._checkValue(result, ValidationError);
 
   }
   /**
@@ -1059,7 +1104,7 @@ export class CompiledSchema
     }
     if (result instanceof Promise) {
       return result.then(
-        resolved => resolved,
+        resolved => options?.strict? this._checkValue(value, SerializeError) : result,
         rejected => {
           if (options?.strict) {
             throw new SerializeError('Unable to serialize', {value, location, cause: rejected});
@@ -1068,7 +1113,7 @@ export class CompiledSchema
         }
       );
     }
-    return result;
+    return options?.strict? this._checkValue(result, SerializeError) : result;
   }
   /**
    * Serialize the provided input value.

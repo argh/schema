@@ -129,6 +129,10 @@ export class SchemaError extends Error {
     const path = data?.path ?? data?.location?.path ?? data?.cause?.path ?? data?.cause?.location?.path;
     const property = data?.property;
 
+    if (!message?.length && cause?.message) {
+      message = cause.message;
+    }
+
     if (!path || message.indexOf(path) === -1) {
       if (data?.hasOwnProperty('value')) {
         message = fpvm(message, data?.value, path, property);

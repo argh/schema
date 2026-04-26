@@ -458,6 +458,34 @@ describe('Schema Compilation - Handler Pipelines', function() {
         Error // Wrapped in SerializeError
       );
     });
+    it('should correctly handle error returns', async function () {
+      const schema = new Schema('object')
+        .validator(value => value?.success? true : new Error('unsuccessful'));
+
+      const compiled = await resolver.compile(schema);
+
+      await assert.rejects(
+        async () => await compiled.normalizeValue(new Error('already failed')),
+        NormalizeError
+      )
+      await assert.rejects(
+        async () => await compiled.validateValue({success: false}),
+        ValidationError
+      )
+    })
+    it('should pass error returns if allowErrors option is enabled', async function () {
+      const schema = new Schema()
+        .option('allowErrors')
+        .normalizer(v => new Error('oops'));
+
+      const compiled = await resolver.compile(schema);
+      const e = await compiled.normalizeValue('whatever');
+      assert.ok(e instanceof Error);
+      const result = await compiled.validateValue(e);
+
+      assert.ok(result instanceof Error);
+    })
+
   });
 
   describe('Pipeline with processor specs', function() {
