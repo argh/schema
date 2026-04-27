@@ -1,6 +1,6 @@
 import { toData } from './helpers/to-data.js';
 import { CompiledSchema } from './compiled-schema.js';
-import { SchemaError, ValidationError } from './errors.js';
+import { SchemaError } from './errors.js';
 import { deepValue } from './helpers/deep.js';
 
 /** @import { ValueProcessor, ValueProcessorFunction, ValueProcessorSpec } from './value-processor/value-processor.js' */
@@ -1101,29 +1101,42 @@ export class Schema
       .option('reference', true)
       .default(path)
       .normalizer(() => path)
-      .transformer((_, config, location) => {
-        const referenceSchema = absolute? location.absolute(path)?.schema : location.relative(path)?.schema;
-        if (referenceSchema === undefined) {
+      .transformer(/** @type {ValueProcessorFunction} */ (_, target, location, options) => {
+        const referenceLocation = absolute? location.absolute(path) : location.relative(path);
+        if (referenceLocation === undefined) {
           throw new SchemaError(`Reference path ${path} not found`);
         }
-        return deepValue(config, path);
-      })
-      .validator(/** @type {ValueProcessorFunction} */ (value, config, location) => {
-
-        const referenceSchema = absolute? location.absolute(path)?.schema : location.relative(path)?.schema;
+        const referenceSchema = referenceLocation.schema;
         if (referenceSchema === undefined) {
-          throw new ValidationError(`Reference path ${path} not found`);
+          if (options?.context?.final) {
+            throw new SchemaError(`Schema for reference path ${path} not found`);
+          }
+          return undefined;
         }
-        const configValue = deepValue(config, path);
+        return deepValue(target, referenceLocation.path);
+      })
+      .validator(/** @type {ValueProcessorFunction} */ (value, target, location, options) => {
+        const referenceLocation = absolute? location.absolute(path) : location.relative(path);
+        if (referenceLocation === undefined) {
+          throw new SchemaError(`Reference path ${path} not found`);
+        }
+        const referenceSchema = referenceLocation.schema;
+        if (referenceSchema === undefined) {
+          if (options?.context?.final) {
+            throw new SchemaError(`Schema for reference path ${path} not found`);
+          }
+          return undefined;
+        }
+        const targetValue = deepValue(target, referenceLocation.path);
 
         // If identical, we're done.
-        if (configValue === value) {
+        if (targetValue === value) {
           return value;
         }
 
         // simple values and opaque values must have an identical reference
         if (!referenceSchema?.hasChildren || referenceSchema.isOpaque) {
-          throw new ValidationError(`Reference is not exactly the same as ${path}`)
+          throw new SchemaError(`Reference is not exactly the same as ${path}`)
         }
 
         // this feels wrong, but there's no guarantee a container wasn't rebuilt during validation
