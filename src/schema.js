@@ -1089,20 +1089,31 @@ export class Schema
   /**
    * Static schema factory for creating a schema that gets its value from another location based on a path.
    *
-   * TODO - restore compilation hook for checking whether the provided path is known
+   * By default, `path` is interpreted as an absolute path from the root.  If the `relative` flag is
+   * set or navigation metacharacters start the path, it will be relative to the current schema.
+   * - An absolute path prefixed with `/` starts at the root.
+   * - A path prefixed with `^` navigates up one level from the current schema path.
+   *
+   * TODO - restore hook for checking whether the provided path is known at compilation time
    *
    * @param {string} path
-   * @param {boolean} [absolute]
+   * @param {boolean} [relative]
    * @returns {Schema}
    * @internal
    */
-  static reference(path, absolute = true) {
+  static reference(path, relative = false) {
+
+    const c = path?.charAt(0);
+
+    if (c === '^' || c === '/' || c === '.') {
+      relative = true;
+    }
     return new Schema()
       .option('reference', true)
       .default(path)
       .normalizer(() => path)
       .transformer(/** @type {ValueProcessorFunction} */ (_, target, location, options) => {
-        const referenceLocation = absolute? location.absolute(path) : location.relative(path);
+        const referenceLocation = relative? location.relative(path) : location.absolute(path);
         if (referenceLocation === undefined) {
           throw new SchemaError(`Reference path ${path} not found`);
         }
@@ -1116,7 +1127,7 @@ export class Schema
         return deepValue(target, referenceLocation.path);
       })
       .validator(/** @type {ValueProcessorFunction} */ (value, target, location, options) => {
-        const referenceLocation = absolute? location.absolute(path) : location.relative(path);
+        const referenceLocation = relative? location.relative(path) : location.absolute(path);
         if (referenceLocation === undefined) {
           throw new SchemaError(`Reference path ${path} not found`);
         }
