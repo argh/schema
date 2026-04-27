@@ -1092,16 +1092,17 @@ export class Schema
    * TODO - restore compilation hook for checking whether the provided path is known
    *
    * @param {string} path
+   * @param {boolean} [absolute]
    * @returns {Schema}
    * @internal
    */
-  static reference(path) {
+  static reference(path, absolute = true) {
     return new Schema()
       .option('reference', true)
       .default(path)
       .normalizer(() => path)
       .transformer((_, config, location) => {
-        const referenceSchema = location.absolute(path)?.schema;
+        const referenceSchema = absolute? location.absolute(path)?.schema : location.relative(path)?.schema;
         if (referenceSchema === undefined) {
           throw new SchemaError(`Reference path ${path} not found`);
         }
@@ -1109,7 +1110,7 @@ export class Schema
       })
       .validator(/** @type {ValueProcessorFunction} */ (value, config, location) => {
 
-        const referenceSchema = location.absolute(path)?.schema;
+        const referenceSchema = absolute? location.absolute(path)?.schema : location.relative(path)?.schema;
         if (referenceSchema === undefined) {
           throw new ValidationError(`Reference path ${path} not found`);
         }

@@ -28,7 +28,7 @@ export const BUFFER_OPERATOR = {
         return Buffer.alloc(value.size, value.fill ?? 0, value.encoding ?? 'utf8');
       }
       if (typeof value === 'object' && value?.encoding !== undefined) {
-        return Buffer.from(value.buffer);
+        return Buffer.from(value.buffer, value.encoding);
       }
       return Buffer.from(value);
     }
