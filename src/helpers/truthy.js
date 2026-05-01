@@ -13,7 +13,7 @@ export function isTruthyKeyword(value) {
  * @returns {boolean}
  */
 export function isFalseyKeyword(value) {
-  return (value === 'false' || value === '0' || value === 'no' || value === 'disabled' || value === 'inactive' || value === 'off' || value === '' || value === 'undefined' || value === 'null');
+  return (value === 'false' || value === '0' || value === 'no' || value === 'disabled' || value === 'inactive' || value === 'off' || value === '' || value === 'undefined' || value === 'null' || value === 'none');
 }
 
 /**
@@ -33,4 +33,23 @@ export function isTruthy(value) {
   }
   if (value instanceof Error) { return false }
   return Boolean(value);
+}
+
+/**
+ * This library has a slightly extended notion of truthiness that includes human-friendly string representations
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isFalsey(value) {
+  if (typeof value === 'boolean') {
+    return !value;
+  }
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase().trim();
+    if (isTruthyKeyword(lower)) { return false }
+    if (isFalseyKeyword(lower)) { return true }
+  }
+  if (value instanceof Error) { return true }
+  return !Boolean(value);
 }
