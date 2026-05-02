@@ -179,9 +179,9 @@ export class SchemaLocation {
 
   /**
    * @param {(location:SchemaLocation) => any} predicate
-   * @returns {Promise<SchemaLocation|undefined>}
+   * @returns {SchemaLocation|undefined}
    */
-  async findPropertyLocation(predicate) {
+  findPropertyLocation(predicate) {
     if (this.#schema === undefined) {
       return undefined;
     }
@@ -190,7 +190,7 @@ export class SchemaLocation {
         continue;
       }
       const propertyLocation = this.relative(propertyName);
-      const result = propertyLocation !== undefined? await predicate(propertyLocation) : undefined;
+      const result = propertyLocation !== undefined? predicate(propertyLocation) : undefined;
       if (Boolean(result)) {
         return propertyLocation;
       }

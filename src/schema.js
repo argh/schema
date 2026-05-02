@@ -563,7 +563,7 @@ export class Schema
    */
   selection(value) {
     this.options.selection = value ?? true;
-    // fixme
+    // fixme - this shouldn't need to be async!  normalize during compilation!
     this.condition(async (_, target, location) => {
       if (!location.schema.isSelection) {
         throw new SchemaError(`Conditional expected a selection schema!`, {location});
@@ -571,11 +571,12 @@ export class Schema
 
       const selectionValue = (this.options.selection === true)? location.name : this.options.selection;
 
-      const selectorLocation = await location.parent?.findPropertyLocation(pl => pl.schema.isSelector)
+      const selectorLocation = location.parent?.findPropertyLocation(pl => pl.schema.isSelector)
 
       if (selectorLocation) {
         const ss = selectorLocation.schema;
         const selectorValue = deepValue(target, selectorLocation.path);
+
         return (await ss.normalizeValue(selectorValue, target, selectorLocation) === (await ss.normalizeValue(selectionValue, target, selectorLocation)));
       }
       return false;
