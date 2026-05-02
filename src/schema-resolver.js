@@ -416,13 +416,22 @@ export class SchemaResolver
    * This can be useful if you need to make changes to the full schema, e.g. prepending processors
    * before the base class handlers.
    *
-   * @param {Schema|CompiledSchema|SchemaData} inputSchema
+   * @param {Schema|CompiledSchema|SchemaData|string} inputSchema
    * @param {boolean} [recursive]
    * @returns {Schema|CompiledSchema}
    */
   resolve(inputSchema, recursive = true) {
     if (inputSchema instanceof CompiledSchema) {
       return inputSchema;
+    }
+    if (typeof inputSchema === 'string') {
+      if (this.hasSchema(inputSchema)) {
+        inputSchema = this.getSchema(inputSchema);
+      }
+      else {
+        // we don't know it - let's pretend it was just a base.
+        inputSchema = new Schema(inputSchema);
+      }
     }
     if (this.#resolveCache.has(inputSchema)) {
       return this.#resolveCache.get(inputSchema);

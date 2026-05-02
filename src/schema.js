@@ -1159,14 +1159,6 @@ export class Schema
       .meta('internal')
   }
 
-  // FIXME - random WIP stuff below, finish or remove:
-  static self() {
-    return new Schema().meta('internal').meta('$SELF')
-  }
-
-  static instanceOf(clazz) {
-
-  }
 }
 
 /**
