@@ -229,6 +229,46 @@ describe('Assignments - Unions', function() {
       });
     });
 
+    it('should resolve union with unambiguous properties', async function() {
+      const schema = new Schema('object')
+        .property('data', new Schema('object')
+          .unionSchema('typeA', new Schema('object')
+            .property('x', new Schema('number').default(123))
+            .property('valueA', new Schema('string'))
+          )
+          .unionSchema('typeB', new Schema('object')
+            .property('y', new Schema('number').default(456))
+            .property('valueB', new Schema('number'))
+          )
+        );
+
+      const compiled = await resolver.compile(schema);
+
+      const assignments1 = new Map([
+        ['data.valueA', 'test']
+      ]);
+
+      const result1 = await compiled.processAssignments(assignments1);
+
+      assert.deepStrictEqual(result1, {
+        data: {
+          x: 123,
+          valueA: 'test'
+        }
+      });
+
+      const assignments2 = new Map([['data.valueB', 123]])
+
+      const result2 = await compiled.processAssignments(assignments2);
+
+      assert.deepStrictEqual(result2, {
+        data: {
+          y: 456,
+          valueB: 123
+        }
+      })
+    });
+
     it('should reject assignments to non-selected union member', async function() {
       const schema = new Schema('object')
         .property('data', new Schema('object')

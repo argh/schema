@@ -479,21 +479,40 @@ describe('Schema Compilation - Union Structure', function() {
 
   describe('Error conditions', function() {
 
-    it('should throw error when union has no value constraints and no discriminator', async function() {
+
+    it('should compile successfully when all union schemas have unique properties', async function() {
       const schema = new Schema('object')
-        .unionSchema('noValues', new Schema('object')
-          .property('field', new Schema('string')));
+        .unionSchema('optionA', new Schema('object')
+          .property('a', new Schema('string')))
+        .unionSchema('optionB', new Schema('object')
+          .property('b', new Schema('string')))
+
+      const compiled = await resolver.compile(schema);
+
+      assert.ok(compiled);
+      assert.strictEqual(compiled.isUnion, true);
+
+    })
+
+    it('should throw error when union cannot always discriminate', async function() {
+      const schema = new Schema('object')
+        .unionSchema('optionA', new Schema('object')
+          .property('a', new Schema('string')))
+        .unionSchema('optionB', new Schema('object')
+          .property('a', new Schema('string'))
+          .property('b', new Schema('string')))
 
       await assert.rejects(
-      async () => await resolver.compile(schema),
+        async () => await resolver.compile(schema),
+
         (error) => {
-          return error.message.includes('needs at least one property with constrained values');
+          return error.message.includes('cannot be uniquely discriminated');
         }
-        ///needs at least one property with constrained values/
       );
     });
 
-    it('should compile successfully when all union schemas have value constraints', async function() {
+
+    it('should compile successfully when all union schemas have unique value constraints', async function() {
       const schema = new Schema('object')
         .unionSchema('optionA', new Schema('object')
           .property('type', new Schema('string').values(['A'])))
@@ -505,6 +524,52 @@ describe('Schema Compilation - Union Structure', function() {
       assert.ok(compiled);
       assert.strictEqual(compiled.isUnion, true);
     });
+
+    it('should throw error when value constraints are not unique', async function() {
+      const schema = new Schema('object')
+        .unionSchema('optionA', new Schema('object')
+          .property('type', new Schema('string').values(['A'])))
+        .unionSchema('optionB', new Schema('object')
+          .property('type', new Schema('string').values(['A'])));
+
+      await assert.rejects(
+        async () => await resolver.compile(schema),
+
+        (error) => {
+          return error.message.includes('indistinguishable');
+        }
+      );
+    });
+
+    it('should compile successfully when all union schemas have unique lists of value constraints', async function() {
+      const schema = new Schema('object')
+        .unionSchema('optionA', new Schema('object')
+          .property('type', new Schema('string').values(['A', 'C'])))
+        .unionSchema('optionB', new Schema('object')
+          .property('type', new Schema('string').values(['B', 'D'])));
+
+      const compiled = await resolver.compile(schema);
+
+      assert.ok(compiled);
+      assert.strictEqual(compiled.isUnion, true);
+    });
+
+  });
+
+  it('should throw error when value constraints overlap', async function() {
+    const schema = new Schema('object')
+      .unionSchema('optionA', new Schema('object')
+        .property('type', new Schema('string').values(['A', 'C'])))
+      .unionSchema('optionB', new Schema('object')
+        .property('type', new Schema('string').values(['B', 'C'])));
+
+    await assert.rejects(
+      async () => await resolver.compile(schema),
+
+      (error) => {
+        return error.message.includes('indistinguishable');
+      }
+    );
   });
 
   describe('Union schema count', function() {

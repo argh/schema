@@ -2,7 +2,7 @@ import { CompiledSchema } from '../compiled-schema.js';
 import { SchemaCompiler } from '../schema-compiler.js';
 import { SchemaLocation } from '../schema-location.js';
 import { Schema } from '../schema.js';
-import { SchemaCompilationError, SchemaError, UnionResolutionError } from '../errors.js';
+import { formatValue, SchemaCompilationError, SchemaError, UnionResolutionError } from '../errors.js';
 import { deepEquals } from '../helpers/deep.js';
 
 /** @import {ValueProcessorFunction} from '../value-processor/value-processor.js' */
@@ -241,7 +241,7 @@ function findDiscriminatorProperties(schema) {
     if (!found) {
       // fixme - shouldn't we wait until we see if we can add anything from the unique property set below?
       const key = schema.findUnionKey(unionSchema);  // this is silly, we had the key already
-      throw new SchemaCompilationError(`Union schema ${key} needs at least one property with constrained values`);
+//      throw new SchemaCompilationError(`Union schema ${key} needs at least one property with constrained values`);
     }
   }
 
@@ -278,6 +278,7 @@ function findDiscriminatorProperties(schema) {
       discriminatorPropertyMap.delete(p);
     }
   }
+  const encountered = new Set();
   // After the main loop, check if all schemas are distinguishable
   for (let i = 0; i < schemas.length; i++) {
     for (let j = i + 1; j < schemas.length; j++) {
@@ -288,6 +289,7 @@ function findDiscriminatorProperties(schema) {
       let uniqueProperty = true;
 
       for (const [property, schemaSet] of discriminatorPropertyMap) {
+        schemaSet.forEach(schema => encountered.add(schema))
         // Check if both schemas have this discriminator property
         if (!schemaSet.has(schema1) || !schemaSet.has(schema2)) {
           continue;
@@ -317,6 +319,15 @@ function findDiscriminatorProperties(schema) {
         );
       }
     }
+  }
+
+  if (schemas.length > 1 && encountered.size !== schemas.length) {
+    for (const s of schemas) {
+      if (!encountered.has(s)) {
+        throw new SchemaCompilationError(`Union member ${formatValue(schema.findUnionKey(s))} cannot be uniquely discriminated`);
+      }
+    }
+
   }
 
   return discriminatorPropertyMap;
