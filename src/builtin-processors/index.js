@@ -83,6 +83,7 @@ try {
     import('./parallel-operator.js'),
     import('./pascal-case-operator.js'),
     import('./pick-operator.js'),
+    import('./phone-constraint.js'),
     import('./pipeline-operator.js'),
     import('./port-constraint.js'),
     import('./positive-constraint.js'),
