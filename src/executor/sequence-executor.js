@@ -127,10 +127,12 @@ export class SequenceExecutor extends Executor {
                         ? result !== undefined
                         : true;
 
-      if (!success) {
+      if (success) {
+        successCount++;
+      }
+      else {
         failureCount++;
       }
-      successCount++;
 
       if (!criteriaFailed()) {
         lastResult = result;
