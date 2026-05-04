@@ -132,7 +132,7 @@ export const PHONE_CONSTRAINT = {
     }
 
     let countryCode;
-    let subscriber;
+    let subscriber = '';
 
     if (stripped.startsWith('+')) {
       const digits = stripped.slice(1);
