@@ -38,6 +38,7 @@ import { DefinedValueProcessor } from './value-processor/defined-value-processor
 import { ConstraintError, ResolverError, SchemaError } from './errors.js';
 import { toKebabCase } from './helpers/case.js';
 import { isEmpty, isNativeClass, isPlainObject, map } from './helpers/object.js';
+import { parseRegExp } from './helpers/regex.js';
 
 /** @import { SchemaData } from './types.js' */
 /** @import { ValueProcessorDefinition, ValueProcessorSpec, ValueProcessorBuilder, ValueProcessorFunction, ValueProcessorArgs, ValueProcessorParameter, KeywordValueProcessorSpec } from './value-processor/value-processor.js' */
@@ -355,9 +356,8 @@ export class SchemaResolver
       valueProcessor = new ComposedValueProcessor(new ConstantExecutor(spec), spec, spec.toISOString());
     }
     else if (typeof spec === 'string' && spec.startsWith('/') && spec.lastIndexOf('/') > 0) {
-      const lastSlash = spec.lastIndexOf('/');
       try {
-        const regex = new RegExp(spec.slice(1, lastSlash), spec.slice(lastSlash + 1));
+        const regex = parseRegExp(spec);
         valueProcessor = new ComposedValueProcessor(new ConstantExecutor(regex), regex, `${regex}`);
       }
       catch {

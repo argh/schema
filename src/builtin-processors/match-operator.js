@@ -2,6 +2,7 @@
 import { FunctionValueProcessor } from '../value-processor/function-value-processor.js';
 import { ComposedValueProcessor } from '../value-processor/composed-value-processor.js';
 import { ConstraintError, SchemaError } from '../errors.js';
+import { parseRegExp } from '../helpers/regex.js';
 
 /**
  * ## $match
@@ -39,7 +40,10 @@ import { ConstraintError, SchemaError } from '../errors.js';
 export const MATCH_OPERATOR = {
   keyword: 'match',
   build: (args) => {
-    const regex = (Array.isArray(args) ? args[0] : args)?.spec;
+    let regex = (Array.isArray(args) ? args[0] : args)?.spec;
+    if (typeof regex === 'string') {
+      regex = parseRegExp(regex);
+    }
     if (!(regex instanceof RegExp)) {
       throw new SchemaError('$match requires a RegExp argument');
     }
