@@ -134,7 +134,7 @@ describe('Processor: string formatter operators', function() {
   describe('$title-case', function() {
     it('should lowercase articles, conjunctions, and short prepositions mid-phrase', async function() {
       const schema = await compile(resolver, '$title-case');
-      assert.strictEqual(await schema.transformValue('sisters-of-mercy'), 'Sisters of Mercy');
+      assert.strictEqual(await schema.transformValue('sisters-of-mercy'), 'Sisters-of-Mercy');
       assert.strictEqual(await schema.transformValue('the lord of the rings'), 'The Lord of the Rings');
       assert.strictEqual(await schema.transformValue('war and peace'), 'War and Peace');
     });
@@ -143,6 +143,12 @@ describe('Processor: string formatter operators', function() {
       const schema = await compile(resolver, '$title-case');
       assert.strictEqual(await schema.transformValue('the'), 'The');
       assert.strictEqual(await schema.transformValue('in the end'), 'In the End');
+    });
+
+    it('should preserve punctuation', async function() {
+      const schema = await compile(resolver, '$title-case');
+      assert.strictEqual(await schema.transformValue('hello, world!'), 'Hello, World!');
+      assert.strictEqual(await schema.transformValue('"we won the match!"'), '"We Won the Match!"');
     });
 
     it('should coerce non-strings', async function() {

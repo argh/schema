@@ -1,7 +1,7 @@
 import { SchemaError } from '../errors.js';
 
 /**
- * Parse potentially delimited regexps
+ * Parse delimited regexp strings
  *
  * @param {string|RegExp} rx
  * @returns {RegExp|undefined}

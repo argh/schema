@@ -55,18 +55,6 @@ const TITLE_CASE_LOWERCASE = new Set([
   'at', 'by', 'in', 'of', 'on', 'to', 'up', 'as', 'via'  // short prepositions
 ]);
 
-function wordsToTitleCase(words) {
-  if (words.length === 0) {
-    return '';
-  }
-  return words.map((word, i) => {
-    if (i !== 0 && i !== words.length - 1 && TITLE_CASE_LOWERCASE.has(word)) {
-      return word;
-    }
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }).join(' ');
-}
-
 // Convert normalized words array to CONSTANT_CASE
 function wordsToConstantCase(words) {
   return words.map(word => word.toUpperCase()).join('_');
@@ -122,5 +110,14 @@ export function toCapitalize(str) {
  * @returns {string}
  */
 export function toTitleCase(str) {
-  return wordsToTitleCase(normalizeToWords(str));
+  if (!str || typeof str !== 'string') return '';
+  let wordIndex = 0;
+  const lastWordStart = str.search(/\b\w(?=[^]*$)/);
+  return str.replace(/\b(\w)(\w*)\b/g, (match, first, rest, offset) => {
+    const i = wordIndex++;
+    if (i !== 0 && offset !== lastWordStart && TITLE_CASE_LOWERCASE.has(match.toLowerCase())) {
+      return match.toLowerCase();
+    }
+    return first.toUpperCase() + rest.toLowerCase();
+  });
 }
