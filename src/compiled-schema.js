@@ -46,6 +46,17 @@ import { isPlainObject } from './helpers/object.js';
 /** @typedef {{[key:string]:CompiledSchema}} CompiledSchemaUnionSchemas */
 
 /**
+ * @typedef {object} SharedOptions
+ * @property {SchemaLocation} [location]
+ * @property {TraversalContext|TraversalContextOptions} [context]
+ */
+
+/** @typedef {SharedOptions & {[key:string]: any}} ValidateOptions */
+/** @typedef {SharedOptions & {[key:string]: any}} SerializeOptions */
+/** @typedef {SharedOptions & {assignments?:Map<string,any>} & {[key:string]: any}} ProcessOptions */
+/** @typedef {SharedOptions & {[key:string]: any}} ProcessAssignmentsOptions */
+
+/**
  * CompiledSchema - the resolved version of a schema usable for processing input values into output values
  *
  * The SchemaResolver compiler takes an input Schema and constructs a CompiledSchema:
@@ -1169,8 +1180,6 @@ export class CompiledSchema
      }
   }
 
-  /** @typedef {SharedOptions & {[key:string]: any}} ValidateOptions */
-
   /**
    * Return a validated output if and only if the input fully matches the schema definition.
    *
@@ -1215,16 +1224,6 @@ export class CompiledSchema
   async validate(value, options) {
     return this._validate(value, options);
   }
-
-  /**
-   * @typedef {object} SharedOptions
-   * @property {SchemaLocation} [location]
-   * @property {TraversalContext|TraversalContextOptions} [context]
-   */
-
-  /**
-   * @typedef {SharedOptions & {assignments?:Map<string,any>} & {[key:string]: any}} ProcessOptions
-   */
 
   /**
    * Process an input value to an output value based on this schema.
@@ -1300,11 +1299,6 @@ export class CompiledSchema
     return this._process(input, target, options);
   }
 
-
-  /**
-   * @typedef {SharedOptions & {[key:string]: any}} ProcessAssignmentsOptions
-   */
-
   /**
    * Process input path/value assignments into an output value based on the schema.
    *
@@ -1332,7 +1326,6 @@ export class CompiledSchema
   }
 
 
-  /** @typedef {SharedOptions & {[key:string]: any}} SerializeOptions */
   /**
    * Serialize the config data as if you were going to use the result for a config file.
    *
