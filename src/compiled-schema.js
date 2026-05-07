@@ -23,11 +23,10 @@ import {
 import { deepEquals, deepPrune } from './helpers/deep.js';
 import { isTruthy } from './helpers/truthy.js';
 import { isPlainObject } from './helpers/object.js';
-import { parse, stringify } from './helpers/stringify.js';
 
 
 /** @import { TraversalContextOptions } from './traversal/traversal-context.js' */
-/** @import { ISchema, ISchemaOptions, ISchemaMetadata, SchemaData, TraversalOptions, ValidateOptions, SerializeOptions, ProcessOptions } from './types.js' */
+/** @import { ISchema, ISchemaOptions, ISchemaMetadata, SchemaData } from './types.js' */
 
 /** @typedef {ISchemaMetadata} CompiledSchemaMetadata */
 /** @typedef {ISchemaOptions} CompiledSchemaOptions */
@@ -1065,11 +1064,11 @@ export class CompiledSchema
     if (value === undefined || value === null || this.isImplicit || isTruthy(this.metadata.omitFromSerialize)) {
       return null;
     }
-    const serializer = this.getValueProcessor('serializers'); //?? this.getValueProcessor('normalizers');
+    const serializer = this.getValueProcessor('serializers') ?? this.getValueProcessor('normalizers');
 
     if (!serializer) {
-      return value;  // should be normalized at least
-      /*
+      return value;
+      /* todo - remove, or test thoroughly before reactivating, potential impact on children feels sus...
       if (this.isOpaque) {
         try {
           // perhaps they implemented JSON.stringify?
@@ -1104,7 +1103,7 @@ export class CompiledSchema
     }
     if (result instanceof Promise) {
       return result.then(
-        resolved => options?.strict? this._checkValue(value, SerializeError) : result,
+        resolved => options?.strict? this._checkValue(resolved, SerializeError) : resolved,
         rejected => {
           if (options?.strict) {
             throw new SerializeError('Unable to serialize', {value, location, cause: rejected});
@@ -1170,6 +1169,7 @@ export class CompiledSchema
      }
   }
 
+  /** @typedef {SharedOptions & {[key:string]: any}} ValidateOptions */
 
   /**
    * Return a validated output if and only if the input fully matches the schema definition.
@@ -1180,12 +1180,12 @@ export class CompiledSchema
    * @param {any} value - input value to validate
    * @param {ValidateOptions} [options] - any tweaks to the validator behavior
    * @returns {any|Promise<any>} - validated value
-   * @package
+   * @internal
    */
-  _validate(value, options) {
-    const location = options?.location ?? new SchemaLocation(this);
+  _validate(value, options = {}) {
+    const location = options.location ?? new SchemaLocation(this);
+    const context = (options.context instanceof TraversalContext) ? options.context : new TraversalContext(location, options);
 
-    const context = new TraversalContext(location, options);
     const executors = [
       () => {
         context.setAssignedInput(value, '');
@@ -1217,6 +1217,16 @@ export class CompiledSchema
   }
 
   /**
+   * @typedef {object} SharedOptions
+   * @property {SchemaLocation} [location]
+   * @property {TraversalContext|TraversalContextOptions} [context]
+   */
+
+  /**
+   * @typedef {SharedOptions & {assignments?:Map<string,any>} & {[key:string]: any}} ProcessOptions
+   */
+
+  /**
    * Process an input value to an output value based on this schema.
    *
    * Errors are thrown if:
@@ -1226,14 +1236,15 @@ export class CompiledSchema
    * - a union cannot be resolved
    *
    * If an output target is provided, it is assumed to already be valid.
+   * A few traversal options are supported; pass in a TraversalContext instance for full customization.
    *
    * (This is an executor function that may return synchronous or asynchronous results.)
    *
    * @param {any} input - the value to process
    * @param {any} [target] - preexisting output value to build upon, if any
-   * @param {ProcessOptions & TraversalOptions & TraversalContextOptions} [options] - options to customize the traversal
+   * @param {ProcessOptions} [options] - options to customize the traversal
    * @returns {any|Promise<any>} - returns the output value
-   * @package
+   * @internal
    */
   _process(input, target, options = {}) {
     const location = options?.location ?? new SchemaLocation(this);
@@ -1273,6 +1284,7 @@ export class CompiledSchema
    * - a union cannot be resolved
    *
    * If an output target is provided, it is assumed to already be valid.
+   * A few traversal options are supported; pass in a TraversalContext instance for full customization.
    *
    * (This is an async wrapper around the internal `_process` executor function.)
    *
@@ -1281,13 +1293,17 @@ export class CompiledSchema
    *
    * @param {any} input - the value to process
    * @param {any} [target] - preexisting output value to build upon, if any
-   * @param {ProcessOptions & TraversalOptions & TraversalContextOptions} [options] - options to customize the traversal
+   * @param {ProcessOptions} [options] - options to customize the traversal
    * @returns {Promise<any>} - returns the output value
    */
   async process(input, target, options = {}) {
     return this._process(input, target, options);
   }
 
+
+  /**
+   * @typedef {SharedOptions & {[key:string]: any}} ProcessAssignmentsOptions
+   */
 
   /**
    * Process input path/value assignments into an output value based on the schema.
@@ -1308,12 +1324,15 @@ export class CompiledSchema
    *
    * @param {Map<string,any>} assignments - path/value associations
    * @param {any} [target] - preexisting output value to build upon, if any
-   * @param {ProcessOptions & TraversalOptions & TraversalContextOptions} [options] - options to customize the traversal
+   * @param {ProcessAssignmentsOptions} [options] - options to customize the traversal
    * @returns {Promise<any>} - returns the output value
    */
   async processAssignments(assignments, target, options = {}) {
     return this._process(undefined, target, {...options, assignments})
   }
+
+
+  /** @typedef {SharedOptions & {[key:string]: any}} SerializeOptions */
   /**
    * Serialize the config data as if you were going to use the result for a config file.
    *

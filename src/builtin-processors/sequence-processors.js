@@ -259,7 +259,7 @@ export const ALL_CONSTRAINT = {
  * Returns the single truthy value, or throws if zero or more than one are truthy.
  * Be careful to not use this in a situation where the provided processors may require late-resolved values!
  * This works best in finalizers, validators, or in opaque schema transformers.
-
+ *
  * See `$one` if you want to check for success (defined value) instead of truthiness.
  *
  * ### Parameters
@@ -309,7 +309,7 @@ export const EXCLUSIVE_CONSTRAINT = {
  * Returns the single defined value, or throws if zero or more than one succeed.
  * Be careful to not use this in a situation where the provided processors may require late-resolved values!
  * This works best in finalizers, validators, or in opaque schema transformers.
-
+ *
  * See `$exclusive` if you want to check for truthiness instead of a defined value.
  *
  * ### Parameters

@@ -103,30 +103,4 @@ import { Executor } from './executor/executor.js';
  * @property {{[key:string]: SchemaData}} [unionSchemas]
  */
 
-/**
- * @typedef {object} TraversalOptions
- * @property {boolean} [strict]
- * @property {boolean} [deep]
- * @property {TraversalContext} [context]
- * @property {Executor<TraversalState>} [enterExecutor]
- * @property {Executor<TraversalState>} [exitExecutor]
- * @property {SchemaLocation} [location]
- * @property {string} [path]
- * @property {string} [inputPath]
- * @property {any} [target]
- */
-
-/** @typedef {TraversalOptions & {[key:string]: any}} SerializeOptions */
-
-/** @typedef {TraversalOptions & {[key:string]: any}} ConfigureOptions */
-/** @typedef {TraversalOptions & {[key:string]: any}} ValidateOptions */
-
-/**
- * @typedef {object} ProcessOptions
- * @property {TraversalContext|TraversalOptions} [context]
- * @property {Map<string,any>} [assignments]
- */
-
-
-
 export {}; // Make this a module

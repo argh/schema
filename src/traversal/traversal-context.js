@@ -1,9 +1,3 @@
-/**
- * @typedef {object} TraversalContextOptions
- * @property {boolean} [strict]
- * @property {boolean} [deep]
- * @property {boolean} [debug]
- */
 import { SchemaLocation } from '../schema-location.js';
 
 import { TraversalState } from './traversal-state.js';
@@ -13,11 +7,21 @@ import { CompiledSchema } from "../compiled-schema.js";
 import { EMPTY } from '../constants.js';
 import { SchemaError } from '../errors.js';
 
+
+/**
+ * @typedef {object} TraversalContextStandardOptions
+ * @property {boolean} [strict]
+ * @property {boolean} [deep]
+ * @property {boolean} [debug]
+ */
+
+/** @typedef {TraversalContextStandardOptions & {[key:string]:any}} TraversalContextOptions */
+
 export class TraversalContext
 {
   /**
    * @param {SchemaLocation|CompiledSchema} root
-   * @param {TraversalContextOptions & {[key:string]:any}} [options]
+   * @param {TraversalContextOptions} [options]
    */
   constructor(root, options = {}) {
 
