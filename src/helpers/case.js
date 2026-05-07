@@ -111,9 +111,10 @@ export function toCapitalize(str) {
  */
 export function toTitleCase(str) {
   if (!str || typeof str !== 'string') return '';
+  const trimmed = str.trim().replace(/\s+/g, ' ');
   let wordIndex = 0;
-  const lastWordStart = str.search(/\b\w(?=[^]*$)/);
-  return str.replace(/\b(\w)(\w*)\b/g, (match, first, rest, offset) => {
+  const lastWordStart = trimmed.search(/\b\w(?=[^]*$)/);
+  return trimmed.replace(/\b(\w)(\w*)\b/g, (match, first, rest, offset) => {
     const i = wordIndex++;
     if (i !== 0 && offset !== lastWordStart && TITLE_CASE_LOWERCASE.has(match.toLowerCase())) {
       return match.toLowerCase();
