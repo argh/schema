@@ -341,10 +341,11 @@ jobs:
           BRANCH="${{ github.ref_name }}"
           COMMIT_MSG=$(git log -1 --format='%s' ${{ github.sha }})
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          HEADER="$PACKAGE@$VERSION ($BRANCH) — $COMMIT_MSG — <$RUN_URL|details>"
           if [[ "$STATUS" == "success" ]]; then
+            HEADER="\`$PACKAGE@$VERSION\` ($BRANCH) — $COMMIT_MSG — <$RUN_URL|details>"
             TEXT=":bananadance: $HEADER"
           else
+            HEADER="~\`$PACKAGE@$VERSION\`~ ($BRANCH) — $COMMIT_MSG — <$RUN_URL|details>"
             TEXT=":this-is-fine: $HEADER"
             if [[ -n "$FAILURE_LOGS" ]]; then
               TEXT="$TEXT\n\`\`\`\n${FAILURE_LOGS}\n\`\`\`"
