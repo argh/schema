@@ -23,12 +23,13 @@ import { ConstraintError } from '../errors.js';
  */
 export const EQ_CONSTRAINT = {
   keyword: 'eq',
-  parameters: [ { parameter: 'value', required: true } ],
+  parameters: [ { parameter: 'value', required: true }, { parameter: 'compare' } ],
 
   process: (value, _target, location, options) => {
     const eqValue = options.args['value'];
+    const compare = options.args['compare'] ?? value;
 
-    if (!deepEquals(value, eqValue)) {
+    if (!deepEquals(eqValue, compare)) {
       throw new ConstraintError(`Value ${formatValue(value)} was not equal to constraint`, {value, location});
     }
     return value;

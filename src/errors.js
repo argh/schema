@@ -203,6 +203,7 @@ export class SchemaError extends Error {
  * @param {string} [fullErrorMessage]
  * @param {Error} [err]
  * @returns {boolean}
+ * @internal
  */
 export function assertErrorMessageInCauseChain(error, match, fullErrorMessage, err) {
 

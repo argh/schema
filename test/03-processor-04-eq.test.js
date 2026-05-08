@@ -29,7 +29,6 @@ describe('Processor: eq', function() {
 
     // unknown or excess parameters
     await assert.rejects(() => resolver.compile(new Schema('any').validator({$eq: {unexpected: 123}})), SchemaError);
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({$eq: [123, 456]})), SchemaError);
   });
 
   it('should pass through the input when it deep-equals the constraint value', async function() {
@@ -72,4 +71,20 @@ describe('Processor: eq', function() {
     const lcSchema = await resolver.compile(new Schema('string').validator({$eq: '$lowercase'}));
     await assert.rejects(() => lcSchema.validateValue('Sparrow'), ValidationError);
   });
+
+  it('should compare against explicitly passed secondary value', async function() {
+    const schema1a = await resolver.compile(new Schema('any').validator({$eq: [123, 123]}));
+    const schema1b = await resolver.compile(new Schema('any').validator({$eq: {value: 123, compare: 123}}));
+
+    assert.strictEqual(await schema1a.validateValue('whatever'), 'whatever');
+    assert.strictEqual(await schema1b.validateValue('whatever'), 'whatever');
+
+    const schema2a = await resolver.compile(new Schema('any').validator({$eq: [123, 456]}));
+    const schema2b = await resolver.compile(new Schema('any').validator({$eq: {value:123, compare: 456}}));
+    await assert.rejects(() => schema2a.validateValue('whatever'));
+    await assert.rejects(() => schema2b.validateValue('whatever'));
+
+
+
+  })
 });
