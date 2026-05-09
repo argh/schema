@@ -212,7 +212,7 @@ const tableRows = processors
 const index = [
   '# Built-in Processors',
   '',
-  'A reference for all built-in value processors available via `$keyword` syntax.',
+  'A reference for prebuilt value processors available via `$keyword` syntax.',
   '',
   '| Processor | Description |',
   '|-----------|-------------|',
