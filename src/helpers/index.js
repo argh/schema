@@ -13,4 +13,4 @@ export { parseRegExp } from './regex.js';
 export { stringify, parse } from './stringify.js';
 export { toData } from './to-data.js';
 export { isTruthyKeyword, isFalseyKeyword, isTruthy, isFalsey } from './truthy.js';
-
+export { parseDataSize, formatDataSize } from './data-size.js';

@@ -22,6 +22,7 @@ try {
     import('./concat-operator.js'),
     import('./conditional-operators.js'),
     import('./constant-case-operator.js'),
+    import('./data-size-operator.js'),
     import('./date-object-operator.js'),
     import('./date-operator.js'),
     import('./date-range-constraint.js'),
