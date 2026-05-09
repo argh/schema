@@ -159,8 +159,8 @@ export class SchemaError extends Error {
     }
 
     if (!preserveStack) {
-      // @ts-ignore
-      //      delete this.stack;
+//       @ts-ignore
+       delete this.stack;
     }
 
     if (data?.cause && !super.cause) {
@@ -172,9 +172,9 @@ export class SchemaError extends Error {
   get name() {
     return this.constructor.name;
   }
-  //  get stack() {
-  //    return "";
-  //  }
+  get stack() {
+    return "";
+  }
 
   set stack(str) {}
 
