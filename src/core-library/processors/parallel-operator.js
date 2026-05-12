@@ -3,7 +3,7 @@ import { ComposedValueProcessor } from '../../value-processor/composed-value-pro
 import { SchemaError } from '../../errors.js';
 import { map } from '../../helpers/object.js';
 
-/** @import {ValueProcessorDefinition} from '../value-processor/value-processor.js' */
+/** @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js' */
 
 /**
  * ## $parallel

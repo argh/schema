@@ -4,7 +4,7 @@ import { FunctionValueProcessor } from '../../value-processor/function-value-pro
 import { ArrayExecutor } from '../../executor/array-executor.js';
 import { ConstraintError, ResolverError, SchemaError } from '../../errors.js';
 
-/** @import {ValueProcessor, ValueProcessorDefinition} from '../value-processor/value-processor.js' */
+/** @import {ValueProcessor, ValueProcessorDefinition} from '../../value-processor/value-processor.js' */
 
 /**
  * ## $in

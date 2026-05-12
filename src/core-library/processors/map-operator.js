@@ -6,7 +6,7 @@ import { EachExecutor } from '../../executor/each-executor.js';
 import { isPlainObject } from '../../helpers/object.js';
 import { ConstraintError, SchemaError } from '../../errors.js';
 
-/** @import { ValueProcessorDefinition } from '../value-processor/value-processor.js' */
+/** @import { ValueProcessorDefinition } from '../../value-processor/value-processor.js' */
 
 /**
  * ## $map

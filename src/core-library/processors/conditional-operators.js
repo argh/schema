@@ -5,7 +5,7 @@ import { ComposedValueProcessor } from '../../value-processor/composed-value-pro
 import { ResolverError } from '../../errors.js';
 
 /**
- * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'
+ * @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js'
  */
 
 /**

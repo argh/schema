@@ -5,7 +5,7 @@ import { map } from '../../helpers/object.js';
 import { ResolverError } from '../../errors.js';
 
 /**
- * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'
+ * @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js'
  */
 
 /**

@@ -7,7 +7,7 @@ import { formatValue } from '../../errors.js';
 import { ConstraintError, ResolverError } from '../../errors.js';
 
 /**
- * @import {ValueProcessorDefinition} from '../value-processor/value-processor.js'
+ * @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js'
  */
 
 /**

@@ -1,5 +1,5 @@
 
-/** @import {ValueProcessorDefinition} from '../value-processor/value-processor.js' */
+/** @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js' */
 
 /**
  * ## $ceil
