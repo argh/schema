@@ -5,27 +5,33 @@
  * For each JSDoc block containing `## $keyword`:
  *   - Strips `/** ... *\/` comment markers
  *   - Filters JSDoc-only annotation lines (@ type, @ import, etc.)
+ *   - Extracts `@category Name` if present (otherwise inferred from directory)
  *   - Writes `processors-output-md/{keyword}.md`
  *
- * Also writes `processors-output-md/index.md` with a table of all processors.
+ * Also writes `processors-output-md/index.md` with a table grouped by category.
  *
- * Usage: node dev-scripts/extract-processor-docs.js
+ * Usage: node scripts/extract-processor-docs.js
  */
 
 import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'node:path';
 
-const PROCESSORS_DIR = new URL('../src/core-library/processors/', import.meta.url).pathname;
+/**
+ * Processor source directories.
+ * Each entry maps a directory to a default category applied when the source
+ * file does not contain an explicit `@category` annotation.
+ */
+const PROCESSOR_DIRS = [
+  { path: new URL('../src/core-library/processors/', import.meta.url).pathname, defaultCategory: 'General' },
+  { path: new URL('../src/core-library-node/processors/', import.meta.url).pathname, defaultCategory: 'Platform: Node.js' },
+];
+
 const OUTPUT_DIR = new URL('../processors-output-md/', import.meta.url).pathname;
 
 // JSDoc annotation lines to strip from extracted output (not user-facing content)
-const JSDOC_TAG_RE = /^@(type|import|package|param|returns|callback|typedef|template|internal|example)\b/;
+const JSDOC_TAG_RE = /^@(type|import|package|param|returns|callback|typedef|template|internal|example|category)\b/;
 
 await mkdir(OUTPUT_DIR, { recursive: true });
-
-const files = (await readdir(PROCESSORS_DIR))
-  .filter(f => f.endsWith('.js') && f !== 'index.js')
-  .sort();
 
 /**
  * Strip JSDoc comment delimiters and leading ` * ` from each line.
@@ -40,6 +46,20 @@ function stripCommentMarkers(block) {
     .split('\n')
     .map(line => line.replace(/^ \* ?/, ''))   // leading ' * ' or ' *'
     .join('\n');
+}
+
+/**
+ * Extract `@category <name>` from raw JSDoc content lines.
+ * Returns the category name or undefined if not present.
+ * @param {string[]} lines
+ * @returns {string|undefined}
+ */
+function extractCategory(lines) {
+  for (const line of lines) {
+    const m = line.trim().match(/^@category\s+(.+)$/);
+    if (m) return m[1].trim();
+  }
+  return undefined;
 }
 
 /**
@@ -169,56 +189,91 @@ function extractDescription(lines) {
     .trim();
 }
 
-const processors = []; // { keyword, description } collected for index.md
+const processors = []; // { keyword, description, category } collected for index.md
 
-for (const filename of files) {
-  const src = await readFile(join(PROCESSORS_DIR, filename), 'utf8');
-  const blockRe = /\/\*\*[\s\S]*?\*\//g;
-  let match;
+for (const { path: dirPath, defaultCategory } of PROCESSOR_DIRS) {
+  let files;
+  try {
+    files = (await readdir(dirPath))
+      .filter(f => f.endsWith('.js') && f !== 'index.js')
+      .sort();
+  } catch {
+    // Directory may not exist (e.g. running on a platform without node processors)
+    continue;
+  }
 
-  while ((match = blockRe.exec(src)) !== null) {
-    const stripped = stripCommentMarkers(match[0]);
-    const lines = stripped.split('\n');
+  for (const filename of files) {
+    const src = await readFile(join(dirPath, filename), 'utf8');
+    const blockRe = /\/\*\*[\s\S]*?\*\//g;
+    let match;
 
-    // Find the ## $keyword heading — the extraction anchor
-    const headerIdx = lines.findIndex(l => /^## \$\w/.test(l));
-    if (headerIdx === -1) continue;
+    while ((match = blockRe.exec(src)) !== null) {
+      const stripped = stripCommentMarkers(match[0]);
+      const allLines = stripped.split('\n');
 
-    const kwMatch = lines[headerIdx].match(/^## \$(\w[\w-]*)/);
-    if (!kwMatch) continue;
-    const keyword = kwMatch[1];
+      // Find the ## $keyword heading — the extraction anchor
+      const headerIdx = allLines.findIndex(l => /^## \$\w/.test(l));
+      if (headerIdx === -1) continue;
 
-    const contentLines = lines.slice(headerIdx);
-    const content = escapeMdxBraces(filterContent(contentLines.join('\n')));
-    const description = extractDescription(contentLines.slice(1));
+      const kwMatch = allLines[headerIdx].match(/^## \$(\w[\w-]*)/);
+      if (!kwMatch) continue;
+      const keyword = kwMatch[1];
 
-    const outputPath = join(OUTPUT_DIR, `${keyword}.md`);
-    await writeFile(outputPath, content + '\n', 'utf8');
+      const category = extractCategory(allLines) ?? defaultCategory;
 
-    processors.push({ keyword, description });
-    console.log(`  wrote: ${keyword}.md`);
+      const contentLines = allLines.slice(headerIdx);
+      const content = escapeMdxBraces(filterContent(contentLines.join('\n')));
+      const description = extractDescription(contentLines.slice(1));
+
+      const outputPath = join(OUTPUT_DIR, `${keyword}.md`);
+      await writeFile(outputPath, content + '\n', 'utf8');
+
+      processors.push({ keyword, description, category });
+      console.log(`  wrote: ${keyword}.md  [${category}]`);
+    }
   }
 }
 
-// Sort alphabetically for stable index output
-processors.sort((a, b) => a.keyword.localeCompare(b.keyword));
+// Group by category, sort categories and processors within each
+const byCategory = new Map();
+for (const p of processors) {
+  if (!byCategory.has(p.category)) byCategory.set(p.category, []);
+  byCategory.get(p.category).push(p);
+}
+for (const list of byCategory.values()) {
+  list.sort((a, b) => a.keyword.localeCompare(b.keyword));
+}
 
-const tableRows = processors
-  .map(({ keyword, description }) =>
-    `| [\`$${keyword}\`](./${keyword}.md) | ${description} |`
-  )
-  .join('\n');
+// Sort categories: 'General' first, then alphabetically, 'Platform: *' last
+const sortedCategories = [...byCategory.keys()].sort((a, b) => {
+  const aPlat = a.startsWith('Platform:');
+  const bPlat = b.startsWith('Platform:');
+  if (aPlat !== bPlat) return aPlat ? 1 : -1;
+  if (a === 'General') return -1;
+  if (b === 'General') return 1;
+  return a.localeCompare(b);
+});
+
+const sections = [];
+for (const category of sortedCategories) {
+  const list = byCategory.get(category);
+  sections.push(`## ${category}`);
+  sections.push('');
+  sections.push('| Processor | Description |');
+  sections.push('|-----------|-------------|');
+  for (const { keyword, description } of list) {
+    sections.push(`| [\`$${keyword}\`](./${keyword}.md) | ${description} |`);
+  }
+  sections.push('');
+}
 
 const index = [
   '# Core Library Processors',
   '',
-  'A reference for core libreary value processors available via `$keyword` syntax.',
+  'A reference for core library value processors available via `$keyword` syntax.',
   '',
-  '| Processor | Description |',
-  '|-----------|-------------|',
-  tableRows,
-  '',
+  ...sections,
 ].join('\n');
 
 await writeFile(join(OUTPUT_DIR, 'index.md'), index, 'utf8');
-console.log(`\nWrote index.md (${processors.length} processors)`);
+console.log(`\nWrote index.md (${processors.length} processors in ${sortedCategories.length} categories)`);
