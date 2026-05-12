@@ -225,8 +225,13 @@ for (const { path: dirPath, defaultCategory } of PROCESSOR_DIRS) {
       const content = escapeMdxBraces(filterContent(contentLines.join('\n')));
       const description = extractDescription(contentLines.slice(1));
 
+      // Insert category badge after the heading line
+      const pageContent = category !== 'General'
+        ? content.replace(/^(## \$\S+)/, `$1\n\n> **${category}**`)
+        : content;
+
       const outputPath = join(OUTPUT_DIR, `${keyword}.md`);
-      await writeFile(outputPath, content + '\n', 'utf8');
+      await writeFile(outputPath, pageContent + '\n', 'utf8');
 
       processors.push({ keyword, description, category });
       console.log(`  wrote: ${keyword}.md  [${category}]`);
