@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+const randomUUID = () => crypto.randomUUID();
 
 /**
  * Deterministic stringifier with support for extended types and deserialization.

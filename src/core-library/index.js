@@ -5,14 +5,13 @@ import { BOOLEAN_SCHEMA } from './schemas/boolean-schema.js';
 import { OBJECT_SCHEMA } from './schemas/object-schema.js';
 import { ARRAY_SCHEMA } from './schemas/array-schema.js';
 import { DATE_SCHEMA } from './schemas/date-schema.js';
-import { BUFFER_SCHEMA } from './schemas/buffer-schema.js';
 import { FUNCTION_SCHEMA } from './schemas/function-schema.js';
 import { ROOT_SCHEMA } from './schemas/root-schema.js';
 import { getBuiltinProcessors } from './processors/index.js';
-import { SchemaResolver } from "../schema-resolver.js";
+
+/** @import { SchemaResolver } from '../schema-resolver.js' */
 
 /**
- *
  * @param {SchemaResolver} resolver
  * @param {object} options
  */
@@ -25,7 +24,6 @@ export default function coreLibrary(resolver, options) {
   resolver.registerSchema('object', OBJECT_SCHEMA);
   resolver.registerSchema('array', ARRAY_SCHEMA);
   resolver.registerSchema('date', DATE_SCHEMA);
-  resolver.registerSchema('buffer', BUFFER_SCHEMA);
   resolver.registerSchema('function', FUNCTION_SCHEMA);
 
   for (const definition of getBuiltinProcessors()) {

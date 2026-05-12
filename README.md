@@ -11,17 +11,28 @@ For full documentation, see <https://docs.v0.net/schema>.
 
 ## Requirements
 
-- NodeJS 22.22.0+
-- ESM Modules only
+- Node.js 19+ or any modern browser
+- ESM only
 
 ## Basic Usage
 
+Core schema and value processor availability vary by platform.
+
+### Node
 ```bash
 npm install --save @versionzero/schema
 ```
+Includes support for `Buffer` and processors for file system access.
+### Browsers
+```html
+<script type="module">
+  import { Schema, SchemaResolver } from '@versionzero/schema';
+  // ...
+</script>
+```
+Works in browsers as raw ESM — no build step required.
 
 ### Examples
-
 (Source can be found in the [examples directory](https://github.com/argh/schema/tree/main/examples))
 
 #### Simple String Schema

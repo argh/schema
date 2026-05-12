@@ -2,16 +2,13 @@
 
 let modules;
 try {
-  modules = await Promise.all([
+  modules ??= await Promise.all([
     import('./aggregation-operators.js'),
     import('./alpha-constraint.js'),
     import('./alphanum-constraint.js'),
     import('./array-operator.js'),
     import('./assert-constraint.js'),
     import('./base64-constraint.js'),
-    import('./base64-decode-operator.js'),
-    import('./base64-encode-operator.js'),
-    import('./buffer-operator.js'),
     import('./camel-case-operator.js'),
     import('./capitalize-operator.js'),
     import('./cardnum-constraint.js'),
@@ -27,14 +24,10 @@ try {
     import('./date-operator.js'),
     import('./date-range-constraint.js'),
     import('./defined-constraint.js'),
-    import('./directory-constraint.js'),
     import('./each-operator.js'),
     import('./email-constraint.js'),
     import('./entries-operator.js'),
     import('./eq-constraint.js'),
-    import('./executable-constraint.js'),
-    import('./file-constraint.js'),
-    import('./file-size-constraint.js'),
     import('./filter-operator.js'),
     import('./find-schema-operator.js'),
     import('./flatten-operator.js'),
@@ -55,7 +48,6 @@ try {
     import('./ipv4-constraint.js'),
     import('./ipv6-constraint.js'),
     import('./is-array-constraint.js'),
-    import('./is-buffer-constraint.js'),
     import('./is-date-constraint.js'),
     import('./is-number-constraint.js'),
     import('./is-object-constraint.js'),
@@ -94,8 +86,6 @@ try {
     import('./process-operator.js'),
     import('./property-operator.js'),
     import('./range-constraint.js'),
-    import('./reachable-constraint.js'),
-    import('./readable-constraint.js'),
     import('./reference-operator.js'),
     import('./require-constraint.js'),
     import('./reverse-operator.js'),
@@ -120,12 +110,10 @@ try {
     import('./url-encode-operator.js'),
     import('./uuid-constraint.js'),
     import('./values-operator.js'),
-    import('./writable-constraint.js'),
   ]);
 }
 catch (error) {
-  console.error('Failed to load built-in processors:', error);
-  process.exit(1);
+  throw new Error('Failed to load built-in processors', { cause: error });
 }
 
 

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>@versionzero/schema - Browser Example</title>
+  <style>
+    body { font-family: monospace; margin: 2em; background: #1a1a1a; color: #e0e0e0; }
+    h1 { font-size: 1.2em; color: #aaa; }
+    pre { background: #111; padding: 1em; border: 1px solid #333; white-space: pre-wrap; }
+    .ok { color: #8f8; }
+    .err { color: #f88; }
+  </style>
+</head>
+<body>
+  <h1>@versionzero/schema -- browser example</h1>
+  <pre id="output">Loading...</pre>
+  <script type="module">
+// -----------------------------------------------------------------
+//  @versionzero/schema -- browser usage example
+//
+//  This demonstrates that the library works directly in the browser
+//  as raw ESM with no build step.  Once published to npm, you can
+//  import from a CDN like jsdelivr:
+//
+//    import { Schema, SchemaResolver } from
+//      'https://cdn.jsdelivr.net/npm/@versionzero/schema/src/index.js';
+//
+//  For local development, serve the repo root and import from the
+//  relative path, as shown below.
+// -----------------------------------------------------------------
+
+const out = document.getElementById('output');
+out.textContent = '';
+
+function log(msg)  { out.textContent += msg + '\n'; }
+function ok(msg)   { out.innerHTML += `<span class="ok">  OK: ${esc(msg)}</span>\n`; }
+function fail(msg) { out.innerHTML += `<span class="err">FAIL: ${esc(msg)}</span>\n`; }
+function esc(s)    { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+try {
+  // -- Import from local source (adjust path to your setup) ------
+  const { Schema, SchemaResolver, SchemaError } = await import('../src/index.js');
+
+  const resolver = new SchemaResolver();
+
+  // -- 1. Simple string processing --------------------------------
+  log('1. String schema with normalizers');
+
+  const greeting = await resolver.compile(
+    new Schema('string')
+      .normalizer('$trim')
+      .normalizer('$title-case')
+  );
+
+  const result1 = await greeting.process('  hello world  ');
+  log(`   Input:  "  hello world  "`);
+  log(`   Output: "${result1}"`);
+  result1 === 'Hello World' ? ok('title-case normalization') : fail('unexpected result');
+
+  // -- 2. Object schema with validation ----------------------------
+  log('\n2. Object schema: user profile');
+
+  const userSchema = await resolver.compile(
+    new Schema('object')
+      .property('name', new Schema('string')
+        .required()
+        .normalizer('$trim')
+        .validator({$length: {min: 1, max: 100}})
+      )
+      .property('email', new Schema('string')
+        .required()
+        .normalizer(['$trim', '$lowercase'])
+        .validator('$email')
+      )
+      .property('age', new Schema('number')
+        .validator('$positive')
+      )
+  );
+
+  const user = await userSchema.process({
+    name: '  Alice  ',
+    email: '  ALICE@Example.COM  ',
+    age: '30'
+  });
+
+  log(`   Input:  { name: "  Alice  ", email: "  ALICE@Example.COM  ", age: "30" }`);
+  log(`   Output: ${JSON.stringify(user)}`);
+  user.name === 'Alice' && user.email === 'alice@example.com' && user.age === 30
+    ? ok('object processing with normalization')
+    : fail('unexpected result');
+
+  // -- 3. Validation errors ----------------------------------------
+  log('\n3. Validation rejection');
+
+  try {
+    await userSchema.process({ name: '', email: 'not-an-email', age: -5 });
+    fail('should have thrown');
+  } catch (e) {
+    e instanceof SchemaError
+      ? ok(`SchemaError: "${e.message}"`)
+      : fail(`wrong error type: ${e.constructor.name}`);
+  }
+
+  // -- 4. Array schema ---------------------------------------------
+  log('\n4. Array schema: tag list');
+
+  const tagsSchema = await resolver.compile(
+    new Schema('array')
+      .property('*', new Schema('string')
+        .normalizer(['$trim', '$lowercase'])
+        .validator({$length: {min: 1}})
+      )
+  );
+
+  const tags = await tagsSchema.process(['  JavaScript ', ' BROWSER ', ' ESM ']);
+  log(`   Input:  ["  JavaScript ", " BROWSER ", " ESM "]`);
+  log(`   Output: ${JSON.stringify(tags)}`);
+  JSON.stringify(tags) === '["javascript","browser","esm"]'
+    ? ok('array element normalization')
+    : fail('unexpected result');
+
+  // -- 5. Serialization round-trip ---------------------------------
+  log('\n5. Serialization round-trip');
+
+  const serialized = await userSchema.serialize(user);
+  log(`   Serialized: ${JSON.stringify(serialized)}`);
+  const reprocessed = await userSchema.process(serialized);
+  JSON.stringify(reprocessed) === JSON.stringify(user)
+    ? ok('serialize -> process round-trip')
+    : fail('round-trip mismatch');
+
+  // -- 6. Custom processor -----------------------------------------
+  log('\n6. Custom value processor');
+
+  resolver.registerValueProcessor('reverse', (value) =>
+    typeof value === 'string' ? [...value].reverse().join('') : value
+  );
+
+  const reverser = await resolver.compile(
+    new Schema('string').normalizer('$reverse')
+  );
+
+  const reversed = await reverser.process('browser');
+  log(`   Input:  "browser"`);
+  log(`   Output: "${reversed}"`);
+  reversed === 'resworb' ? ok('custom processor') : fail('unexpected result');
+
+  // -- done --------------------------------------------------------
+  log('\n---');
+  log('All examples completed.');
+
+} catch (e) {
+  fail(`Fatal: ${e.message}`);
+  log(e.stack);
+}
+  </script>
+</body>
+</html>

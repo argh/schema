@@ -26,7 +26,25 @@ import { toKebabCase } from './helpers/case.js';
 import { isNativeClass, map } from './helpers/object.js';
 import { parseRegExp } from './helpers/regex.js';
 
-import coreLibrary from './core-library/index.js';
+/**
+ * Module-level registry of core library functions.  Populated by the package entry
+ * point (`src/index.js`) before any SchemaResolver is constructed.  Each registered
+ * function is called synchronously in the constructor of every new SchemaResolver.
+ *
+ * @type {Array<(resolver: SchemaResolver, options: object) => void>}
+ */
+const _coreLibraries = [];
+
+/**
+ * Register a core library function to be loaded into every new SchemaResolver.
+ * Called by the package entry point; not part of the public API.
+ *
+ * @param {(resolver: SchemaResolver, options: object) => void} libraryFn
+ * @internal
+ */
+export function registerCoreLibrary(libraryFn) {
+  _coreLibraries.push(libraryFn);
+}
 
 /** @typedef {{name:string, [key:string]:any}} SchemaResolverLibraryOptions */
 
@@ -51,8 +69,9 @@ export class SchemaResolver
   #resolveCache = new Map();
 
   constructor() {
-    // Note: deliberately calling the async method synchronously here.
-    this.use(coreLibrary, {sync: true});
+    for (const lib of _coreLibraries) {
+      this.use(lib, { sync: true });
+    }
   }
 
   /**

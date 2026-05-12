@@ -217,6 +217,12 @@ jobs:
       - name: Run tests
         run: npm test --if-present
 
+      - name: Run browser tests
+        if: hashFiles('playwright.config.*') != ''
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:browser
+
       - name: Build
         run: npm run build --if-present
 

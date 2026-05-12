@@ -1,4 +1,3 @@
-import assert from "node:assert";
 import { SchemaLocation } from "./schema-location.js";
 import { stringify } from './helpers/stringify.js';
 import { isPlainObject } from './helpers/object.js';
@@ -208,11 +207,7 @@ export class SchemaError extends Error {
 export function assertErrorMessageInCauseChain(error, match, fullErrorMessage, err) {
 
   if (err === undefined) {
-    err = new assert.AssertionError(
-      {
-        message: 'message not found in cause chain',
-        stackStartFn: assertErrorMessageInCauseChain
-      });
+    err = new Error('message not found in cause chain');
   }
 
   const errorMessage = (error?.message ?? '');
