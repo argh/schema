@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Extracts processor documentation from JSDoc blocks in builtin-processor source files.
+ * Extracts processor documentation from JSDoc blocks in core library processor source files.
  *
  * For each JSDoc block containing `## $keyword`:
  *   - Strips `/** ... *\/` comment markers
@@ -15,7 +15,7 @@
 import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'node:path';
 
-const PROCESSORS_DIR = new URL('../src/builtin-processors/', import.meta.url).pathname;
+const PROCESSORS_DIR = new URL('../src/core-library/processors/', import.meta.url).pathname;
 const OUTPUT_DIR = new URL('../processors-output-md/', import.meta.url).pathname;
 
 // JSDoc annotation lines to strip from extracted output (not user-facing content)
@@ -210,9 +210,9 @@ const tableRows = processors
   .join('\n');
 
 const index = [
-  '# Built-in Processors',
+  '# Core Library Processors',
   '',
-  'A reference for prebuilt value processors available via `$keyword` syntax.',
+  'A reference for core libreary value processors available via `$keyword` syntax.',
   '',
   '| Processor | Description |',
   '|-----------|-------------|',

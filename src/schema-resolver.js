@@ -2,19 +2,6 @@ import { CompiledSchema } from './compiled-schema.js';
 import { Schema } from './schema.js';
 import { SchemaCompiler } from './schema-compiler.js';
 
-import { ANY_SCHEMA } from './builtin-schemas/any-schema.js';
-import { STRING_SCHEMA } from './builtin-schemas/string-schema.js';
-import { NUMBER_SCHEMA } from './builtin-schemas/number-schema.js';
-import { BOOLEAN_SCHEMA } from './builtin-schemas/boolean-schema.js';
-import { OBJECT_SCHEMA } from './builtin-schemas/object-schema.js';
-import { ARRAY_SCHEMA } from './builtin-schemas/array-schema.js';
-import { DATE_SCHEMA } from './builtin-schemas/date-schema.js';
-import { BUFFER_SCHEMA } from './builtin-schemas/buffer-schema.js';
-import { FUNCTION_SCHEMA } from './builtin-schemas/function-schema.js';
-import { getBuiltinProcessors } from './builtin-processors/index.js';
-import { ROOT_SCHEMA } from './builtin-schemas/root-schema.js';
-import { stringify } from './helpers/stringify.js';
-import { PipelineExecutor } from './executor/pipeline-executor.js';
 import {
   ConstantExecutor,
   Executor, FALSE_EXECUTOR,
@@ -33,12 +20,15 @@ import { ComposedValueProcessor } from './value-processor/composed-value-process
 import { ValueProcessor } from './value-processor/value-processor.js';
 import { ObjectExecutor } from './executor/object-executor.js';
 import { ArrayExecutor } from './executor/array-executor.js';
-import { ParametersValueProcessor } from './value-processor/parameters-value-processor.js';
 import { DefinedValueProcessor } from './value-processor/defined-value-processor.js';
-import { ConstraintError, ResolverError, SchemaError } from './errors.js';
+import { ResolverError, SchemaError } from './errors.js';
 import { toKebabCase } from './helpers/case.js';
-import { isEmpty, isNativeClass, isPlainObject, map } from './helpers/object.js';
+import { isNativeClass, map } from './helpers/object.js';
 import { parseRegExp } from './helpers/regex.js';
+
+import coreLibrary from './core-library/index.js';
+
+/** @typedef {{name:string, [key:string]:any}} SchemaResolverLibraryOptions */
 
 /** @import { SchemaData } from './types.js' */
 /** @import { ValueProcessorDefinition, ValueProcessorSpec, ValueProcessorBuilder, ValueProcessorFunction, ValueProcessorArgs, ValueProcessorParameter, KeywordValueProcessorSpec } from './value-processor/value-processor.js' */
@@ -58,13 +48,11 @@ export class SchemaResolver
    */
   #processorMap = new Map();
 
-  #compilationCache = new Map();
   #resolveCache = new Map();
-  #finalizationSet = new Set();
 
   constructor() {
-    this._registerBuiltInSchemas();
-    this._registerBuiltInValueProcessors()
+    // Note: deliberately calling the async method synchronously here.
+    this.use(coreLibrary, {sync: true});
   }
 
   /**
@@ -169,30 +157,40 @@ export class SchemaResolver
     });
   }
 
-  /**
-   * @private
-   */
-  _registerBuiltInSchemas() {
-    this.registerSchema('root-schema', ROOT_SCHEMA);
-    this.registerSchema('any', ANY_SCHEMA);
-    this.registerSchema('string', STRING_SCHEMA);
-    this.registerSchema('number', NUMBER_SCHEMA);
-    this.registerSchema('boolean', BOOLEAN_SCHEMA);
-    this.registerSchema('object', OBJECT_SCHEMA);
-    this.registerSchema('array', ARRAY_SCHEMA);
-    this.registerSchema('date', DATE_SCHEMA);
-    this.registerSchema('buffer', BUFFER_SCHEMA);
-    this.registerSchema('function', FUNCTION_SCHEMA);
-  }
 
   /**
-   * @private
+   * Load a library of schemas and/or value processors.
+   *
+   * Expects a (potentially async) library function accepting a SchemaResolver.  Options passed to `use`
+   * will be propagated to the library function.
+   *
+   * The `name` option is used for error messages.
+   * The `sync` option is used internally to enforce the core library does not get loaded asynchronously.
+   *
+   * @param {(resolver:SchemaResolver, options:object) => Promise<void>|void} libraryFunction
+   * @param {object} [options]
+   * @returns {Promise<void>}
    */
-  _registerBuiltInValueProcessors() {
-    for (const definition of getBuiltinProcessors()) {
-      this.registerValueProcessorDefinition(definition);
+  async use(libraryFunction, options = {}) {
+    try {
+      const libraryResult = libraryFunction(this, options);
+      if (libraryResult instanceof Promise && options.sync) {
+        throw new ResolverError('Cannot load async library');
+      }
+      return await libraryResult;
     }
+    catch (error) {
+      if (error instanceof ResolverError) {
+        throw error;
+      }
+      else {
+        throw new ResolverError(`Error loading library`, {cause: error});
+      }
+    }
+
   }
+
+
 
   _constantKeywords = {
     $null: NULL_EXECUTOR,

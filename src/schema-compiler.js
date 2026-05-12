@@ -375,7 +375,7 @@ export class SchemaCompiler extends CompiledSchema {
       .property('metadata',
         new Schema('object')
 //          .implicit()
-          .property('*', new Schema('string'))  // FIXME - CommandLineSource interprets some metadata as booleans!
+          .property('*', new Schema('string'))
       )
       .property('options',
         new Schema('object')

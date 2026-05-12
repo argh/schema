@@ -1,0 +1,20 @@
+import { formatValue } from '../../errors.js';
+import { ConstraintError } from '../../errors.js';
+
+/**
+ * ## $base64-encode
+ *
+ * Encodes a Buffer to a Base64 string.
+ * Throws if the input is not a Buffer.
+ *
+ * @type {import('../../value-processor/value-processor.js').ValueProcessorDefinition}
+ */
+export const BASE64_ENCODE_OPERATOR = {
+  keyword: 'base64-encode',
+  process: (value, _target, location) => {
+    if (!Buffer.isBuffer(value)) {
+      throw new ConstraintError(`$base64-encode requires a Buffer, got ${formatValue(value)}`, {location});
+    }
+    return value.toString('base64');
+  }
+};
