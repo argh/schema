@@ -1,6 +1,6 @@
 {
   "name": "@versionzero/schema",
-  "version": "0.2.3-main.1",
+  "version": "0.2.3-main.2",
   "description": "A composable schema library that supports asynchronous processing",
   "sideEffects": false,
   "main": "./src/index.js",
