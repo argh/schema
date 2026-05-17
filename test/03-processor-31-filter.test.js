@@ -15,12 +15,12 @@ describe('Processor: filter', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // too many positional args
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$filter: ['$positive', '$negative']})),
       SchemaError
     );
     // too many named args
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$filter: {processor: '$positive', extra: 'bad'}})),
       SchemaError
     );

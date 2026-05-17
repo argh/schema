@@ -24,11 +24,11 @@ describe('Processor: eq', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // missing required value parameter
-    await assert.rejects(() => resolver.compile(new Schema('any').validator('$eq')), SchemaError);
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({$eq: {}})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator('$eq')), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator({$eq: {}})), SchemaError);
 
     // unknown or excess parameters
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({$eq: {unexpected: 123}})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator({$eq: {unexpected: 123}})), SchemaError);
   });
 
   it('should pass through the input when it deep-equals the constraint value', async function() {

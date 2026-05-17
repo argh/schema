@@ -47,7 +47,7 @@ describe('Processors: $abs, $pow, $sqrt, $clamp', function() {
     });
 
     it('should throw SchemaError at compile time if arg is missing', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('any').transformer('$pow')),
         SchemaError
       );

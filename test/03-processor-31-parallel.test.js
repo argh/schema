@@ -15,7 +15,7 @@ describe('Processor: parallel', function() {
   it('should reject invalid configuration at compile time', async function() {
     // plain object args are not an array — the resolver maps objects as {key: compiledSpec},
     // which is not an array, so build() rejects it
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$parallel: {processor: '$numeric'}})),
       SchemaError
     );

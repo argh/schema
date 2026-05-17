@@ -15,7 +15,7 @@ describe('Processor: floor', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // unknown parameter
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$floor: {unexpected: 0}})),
       SchemaError
     );

@@ -14,7 +14,7 @@ describe('Processor: $merge', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // array arg is not valid (must be an object)
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$merge: ['apple', 'banana']})),
       SchemaError
     );

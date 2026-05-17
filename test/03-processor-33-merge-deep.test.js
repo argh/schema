@@ -13,11 +13,11 @@ describe('Processor: $merge-deep', function() {
   });
 
   it('should reject invalid configuration at compile time', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$merge-deep')),
       SchemaError
     );
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({'$merge-deep': [1, 2]})),
       SchemaError
     );

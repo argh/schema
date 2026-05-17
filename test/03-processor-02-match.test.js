@@ -54,7 +54,7 @@ describe('Processor: $matches and $match', function() {
     });
 
     it('should throw SchemaError at compile time if argument is not a RegExp', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('string').validator({$matches: 'not-a-regex'})),
         SchemaError
       );
@@ -129,7 +129,7 @@ describe('Processor: $matches and $match', function() {
     });
 
     it('should throw SchemaError at compile time if argument is not a RegExp', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('any').transformer({$match: 'not-a-regex'})),
         SchemaError
       );

@@ -152,20 +152,17 @@ describe('Schema Compilation - Handler Pipelines', function() {
       assert.strictEqual(normalizerCalled, true); // Still called, but returns value unchanged
     });
 
-    it('normalizer: values should allow async normalizer', async function() {
-      // todo - move this test to somewhere that tests schema values?
+    it('normalizer: async normalizer should throw at compile time', function() {
       const schema = new Schema('string')
         .normalizer((value) => `TEST:${value}`)
         .normalizer(async (value) => value.toLowerCase())
         .normalizer((value) => `${value}:SUCCESS`)
         .values(['A', 'B', 'C'])
 
-      const compiled = await resolver.compile(schema);
-
-      const result1 = await compiled.normalizeValue('A');
-      assert.strictEqual(result1, 'test:a:SUCCESS');
-
-      assert.deepStrictEqual(compiled.options.values, ['test:a:SUCCESS', 'test:b:SUCCESS', 'test:c:SUCCESS']);
+      assert.throws(
+        () => resolver.compile(schema),
+        error => /async processor/.test(error.message) || /async processor/.test(error.cause?.message)
+      );
     })
 
     it('transformer: should transform from normalized form', async function() {

@@ -17,11 +17,11 @@ describe('Processor: instanceof', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // missing required clazz parameter
-    await assert.rejects(() => resolver.compile(new Schema('any').validator('$instanceof')), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator('$instanceof')), SchemaError);
 
     // non-function argument
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({$instanceof: 'Parrot'})), SchemaError);
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({$instanceof: 42})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator({$instanceof: 'Parrot'})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator({$instanceof: 42})), SchemaError);
   });
 
   it('should pass through the input when it is an instance of the target', async function() {

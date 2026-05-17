@@ -9,9 +9,9 @@ import { SchemaCompilationError } from '../errors.js';
  * @param {CompiledSchema} inputSchema
  * @param {any} _
  * @param {SchemaLocation} location
- * @returns {Promise<CompiledSchema>}
+ * @returns {CompiledSchema}
  */
-export async function populateChildSelectorValues(inputSchema, _, location) {
+export function populateChildSelectorValues(inputSchema, _, location) {
 //    if (!inputSchema.isSelector || inputSchema.hasValues) {
 //      return inputSchema;
 //    }
@@ -67,7 +67,7 @@ export async function populateChildSelectorValues(inputSchema, _, location) {
     }
 
     // FIXME - figure out how we can avoid doing an await
-    const selectorValue = await selectorPropertySchema.normalizeValue(selectionValue);
+    const selectorValue = selectorPropertySchema._normalizeValue(selectionValue, undefined, undefined, {sync: true});
     selectionValueSet.add(selectorValue);
   }
 

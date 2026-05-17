@@ -14,11 +14,11 @@ describe('Processor: $has-prefix', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // missing required match parameter
-    await assert.rejects(() => resolver.compile(new Schema('any').validator('$has-prefix')), SchemaError);
-    await assert.rejects(() => resolver.compile(new Schema('any').validator({'$has-prefix': {}})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator('$has-prefix')), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('any').validator({'$has-prefix': {}})), SchemaError);
 
     // unknown parameter
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').validator({'$has-prefix': {unexpected: 'foo'}})),
       SchemaError
     );

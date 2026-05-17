@@ -31,11 +31,11 @@ describe('Processors: $replace, $substring, $pad', function() {
     });
 
     it('should throw SchemaError at compile time for invalid arguments', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('any').transformer('$replace')),
         SchemaError
       );
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('any').transformer({$replace: ['only-one']})),
         SchemaError
       );

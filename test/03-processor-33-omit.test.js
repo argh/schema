@@ -14,12 +14,12 @@ describe('Processor: $omit', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // empty array
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$omit: []})),
       SchemaError
     );
     // no argument at all
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$omit')),
       SchemaError
     );

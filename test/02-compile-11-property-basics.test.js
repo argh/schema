@@ -276,8 +276,8 @@ describe('Schema Compilation - Property Basics', function() {
       const schema = new Schema('string')
         .property('invalid', new Schema('number'));
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
         (error) => assertErrorMessageInCauseChain(error, /child properties/)
       )
 

@@ -500,13 +500,17 @@ export class SchemaCompiler extends CompiledSchema {
    * "process" flow.
    *
    * @param {Schema|CompiledSchema|import("./types.js").SchemaData} inputSchema
-   * @returns {Promise<CompiledSchema>}
+   * @returns {CompiledSchema}
    */
-  async compile(inputSchema) {
+  compile(inputSchema) {
     try {
       const context = new TraversalContext(new SchemaLocation(this));
       context.compiling = true;
-      return await this.process(inputSchema, undefined, {context});
+      const result = this._process(inputSchema, undefined, {context});
+      if (result instanceof Promise) {
+        throw new SchemaCompilationError('Encountered an async processor during compilation');
+      }
+      return result;
     }
     catch (error) {
       if (error instanceof SchemaCompilationError) {

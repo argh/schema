@@ -14,12 +14,12 @@ describe('Processor: $pick', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // empty array
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$pick: []})),
       SchemaError
     );
     // no argument at all
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$pick')),
       SchemaError
     );

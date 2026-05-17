@@ -103,7 +103,7 @@ describe('Processor Basics - parameter compilation and argument execution', func
   describe('registration errors', function() {
 
     it('should throw at compile time for an unknown keyword', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('any').transformer('$not-a-keyword')),
         SchemaError
       );

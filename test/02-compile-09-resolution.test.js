@@ -171,8 +171,8 @@ describe('Schema Compilation - Base Type Resolution', function() {
     it('should throw for unknown base types', async function() {
       const schema = new Schema('nonexistent-type');
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
         (error) => assertErrorMessageInCauseChain(error, /Unable to resolve "nonexistent-type"/)
       );
     });
@@ -337,8 +337,8 @@ describe('Schema Compilation - Base Type Resolution', function() {
     it('should throw descriptive error for missing base type', async function() {
       const schema = new Schema('missing-type');
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
 
         error => assertErrorMessageInCauseChain(error, /Unable to resolve "missing-type"/)
       );

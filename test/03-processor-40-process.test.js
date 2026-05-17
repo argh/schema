@@ -13,7 +13,7 @@ describe('Processor: $process', function() {
   });
 
   it('should reject a missing schema argument at compile time', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$process')),
       SchemaError
     );
