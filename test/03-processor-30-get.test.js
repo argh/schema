@@ -14,7 +14,7 @@ describe('Processor: $get', function() {
   });
 
   it('should reject missing path at compile time', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$get')),
       SchemaError
     );

@@ -53,7 +53,7 @@ describe('Processor: $group-by', function() {
   });
 
   it('should throw SchemaError at compile time if argument is missing', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$group-by')),
       SchemaError
     );

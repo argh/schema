@@ -15,7 +15,7 @@ describe('Processor: $lookup', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // array arg is not valid (wrong number of parameters)
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$lookup: ['apple', 'banana', 'grape']})),
       SchemaError
     );
@@ -23,7 +23,7 @@ describe('Processor: $lookup', function() {
 
   it('should reject invalid configuration at compile time (not obj)', async function() {
     // array arg is not valid (wrong number of parameters)
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$lookup: 'grape'})),
       SchemaError
     );
@@ -31,7 +31,7 @@ describe('Processor: $lookup', function() {
 
   it('should reject invalid configuration at compile time (bad param name)', async function() {
     // array arg is not valid (wrong number of parameters)
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$lookup: {literal: {grape:1}}})),
       SchemaError
     );

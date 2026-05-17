@@ -502,8 +502,8 @@ describe('Schema Compilation - Union Structure', function() {
           .property('a', new Schema('string'))
           .property('b', new Schema('string')))
 
-      await assert.rejects(
-        async () => await resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
 
         (error) => {
           return error.message.includes('cannot be uniquely discriminated');
@@ -532,8 +532,8 @@ describe('Schema Compilation - Union Structure', function() {
         .unionSchema('optionB', new Schema('object')
           .property('type', new Schema('string').values(['A'])));
 
-      await assert.rejects(
-        async () => await resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
 
         (error) => {
           return error.message.includes('indistinguishable');
@@ -563,8 +563,8 @@ describe('Schema Compilation - Union Structure', function() {
       .unionSchema('optionB', new Schema('object')
         .property('type', new Schema('string').values(['B', 'C'])));
 
-    await assert.rejects(
-      async () => await resolver.compile(schema),
+    assert.throws(
+      () => resolver.compile(schema),
 
       (error) => {
         return error.message.includes('indistinguishable');

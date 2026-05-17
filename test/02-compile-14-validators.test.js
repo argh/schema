@@ -34,8 +34,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator('$nonExistent');
 
-      await assert.rejects(
-      async () => await resolver.compile(schema)
+      assert.throws(
+      () => resolver.compile(schema)
       );
     });
 
@@ -121,8 +121,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator({ $unknownValidator: 42 });
 
-      await assert.rejects(
-      async () => await resolver.compile(schema)
+      assert.throws(
+      () => resolver.compile(schema)
       );
     });
 
@@ -132,8 +132,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator({ $simple: { arg: 'value' } });
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
         error => assertErrorMessageInCauseChain(error, /Too many arguments/)
       );
     });
@@ -146,8 +146,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator({ $validator1: 1, $validator2: 2 });
 
-      await assert.rejects(
-        async () => await resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
         error => assertErrorMessageInCauseChain(error, /Invalid value processor specification/)
       );
     });
@@ -280,8 +280,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator('/[invalid/');
 
-      await assert.rejects(
-      async () => await resolver.compile(schema)
+      assert.throws(
+      () => resolver.compile(schema)
       );
     });
 
@@ -591,8 +591,8 @@ describe('Schema Compilation - Validator Registration and Resolution', function(
       const schema = new Schema('string')
         .validator({});
 
-      await assert.rejects(
-      async () => await resolver.compile(schema)
+      assert.throws(
+      () => resolver.compile(schema)
       );
     });
 

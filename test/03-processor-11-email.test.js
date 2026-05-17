@@ -24,10 +24,10 @@ describe('Processor: email', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // unknown parameter
-    await assert.rejects(() => resolver.compile(new Schema('string').validator({'$email': {unexpected: true}})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('string').validator({'$email': {unexpected: true}})), SchemaError);
 
     // excess positional parameters
-    await assert.rejects(() => resolver.compile(new Schema('string').validator({'$email': [1, 2, 3, 4]})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('string').validator({'$email': [1, 2, 3, 4]})), SchemaError);
   });
 
   it('should accept valid emails and lowercase by default', async function() {

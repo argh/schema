@@ -15,7 +15,7 @@ describe('Processor: round', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // unknown parameter
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$round: {unexpected: 0}})),
       SchemaError
     );

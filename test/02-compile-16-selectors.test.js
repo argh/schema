@@ -182,8 +182,8 @@ describe('Schema Compilation - Selectors and Selections', function() {
           .selection()
         );
 
-      await assert.rejects(
-        async () => resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
         error => assertErrorMessageInCauseChain(error, /missing selection with value/)
       )
 
@@ -215,8 +215,8 @@ describe('Schema Compilation - Selectors and Selections', function() {
       const schema = new Schema('string')
         .selector()
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
         SchemaError
       );
     });
@@ -435,8 +435,8 @@ describe('Schema Compilation - Selectors and Selections', function() {
         .property('command', new Schema('string').selector())
         .property('normalProperty', new Schema('string'));
 
-      await assert.rejects(
-        async () => await resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
         SchemaError
       );
     });
@@ -450,8 +450,8 @@ describe('Schema Compilation - Selectors and Selections', function() {
       const schema = new Schema('object')
         .property('option', new Schema('object').selection());
 
-      await assert.rejects(
-        async () => await resolver.compile(schema),
+      assert.throws(
+        () => resolver.compile(schema),
         SchemaError
       );
     });

@@ -22,10 +22,10 @@ describe('Processor: date-range', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // unknown parameter
-    await assert.rejects(() => resolver.compile(new Schema('date').validator({'$date-range': {unexpected: 1}})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('date').validator({'$date-range': {unexpected: 1}})), SchemaError);
 
     // excess positional parameters
-    await assert.rejects(() => resolver.compile(new Schema('date').validator({'$date-range': [1, 2, 3]})), SchemaError);
+    assert.throws(() => resolver.compile(new Schema('date').validator({'$date-range': [1, 2, 3]})), SchemaError);
   });
 
   it('should pass through dates within the specified range', async function() {

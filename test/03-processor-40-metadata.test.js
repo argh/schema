@@ -14,11 +14,11 @@ describe('Processor: $metadata', function() {
   });
 
   it('should reject missing required "name" parameter at compile time', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$metadata')),
       SchemaError
     );
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$metadata: {schema: 'irrelevant'}})),
       SchemaError
     );

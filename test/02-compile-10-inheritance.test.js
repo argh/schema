@@ -410,7 +410,7 @@ describe('Schema Compilation - Inheritance', function() {
   describe('Unknown base schema', function() {
 
     it('should throw SchemaCompilationError at compile time for an unknown base type', async function() {
-      await assert.rejects(
+      assert.throws(
         () => resolver.compile(new Schema('no-such-type')),
         SchemaCompilationError
       );

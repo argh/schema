@@ -25,13 +25,13 @@ describe('Processor: phone', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // unknown parameter
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('string').validator({'$phone': {unexpected: true}})),
       SchemaError
     );
 
     // excess positional parameters
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('string').validator({'$phone': [1, 2, 3, 4]})),
       SchemaError
     );

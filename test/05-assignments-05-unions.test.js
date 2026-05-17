@@ -309,8 +309,8 @@ describe('Assignments - Unions', function() {
           )
         );
 
-      await assert.rejects(
-      async () => await resolver.compile(schema),
+      assert.throws(
+      () => resolver.compile(schema),
         /ambiguous|cannot.*discriminate|indistinguishable/i
       );
     });

@@ -13,11 +13,11 @@ describe('Processor: $concat', function() {
   });
 
   it('should reject empty args at compile time', async function() {
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer({$concat: []})),
       SchemaError
     );
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').transformer('$concat')),
       SchemaError
     );

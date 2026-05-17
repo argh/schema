@@ -16,7 +16,7 @@ describe('Processor: $compile', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // more than two arguments are not allowed
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(
         new Schema('any').transformer({$compile: [{$literal: new Schema('string')}, {$literal: new Schema('number')}, 123]})
       ),

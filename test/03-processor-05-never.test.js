@@ -18,7 +18,7 @@ describe('Processor: never', function() {
 
   it('should reject invalid configuration at compile time', async function() {
     // too many positional args
-    await assert.rejects(
+    assert.throws(
       () => resolver.compile(new Schema('any').validator({$never: ['$numeric', '$alpha']})),
       SchemaError
     );
