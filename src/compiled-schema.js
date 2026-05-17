@@ -720,7 +720,7 @@ export class CompiledSchema
     if (value instanceof Error && !this.options.allowErrors) {
       throw new NormalizeError(value.message, {cause: value});
     }
-
+    const sync = options?.sync ?? false;
     const dynamic = options?.dynamic ?? this.options?.dynamic ?? true;  // todo - make dynamic default to false?
 
     if ((typeof value === 'function' || value instanceof ValueProcessor) && dynamic && !options.compiling) {
@@ -728,6 +728,9 @@ export class CompiledSchema
                      value.execute(true, target, location, options) : value(true, target, location, options);
 
       if (result instanceof Promise) {
+        if (sync) {
+          throw new NormalizeError('Encountered an async value function during a forced-sync normalization', {location});
+        }
         return result.then(resolved => {
           if (resolved === undefined || resolved === null) {
             return resolved;  // a dynamic function must not fall back to defaults
@@ -761,6 +764,9 @@ export class CompiledSchema
     }
 
     if (result instanceof Promise) {
+      if (sync) {
+        throw new NormalizeError('Encountered an async processor during a forced-sync normalization', {location});
+      }
       return result.then(
         resolved => this._checkValue(resolved, NormalizeError),
         rejected => { throw new NormalizeError('Unable to normalize', {value, location, cause: rejected})}

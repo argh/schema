@@ -19,37 +19,17 @@ export function normalizeValues(cs, _, location) {
 
   const valueSet = new Set();
 
-  const handle = (value) => {
+  let vi = 0;
+
+  while (vi < values.length) {
+    const value = cs._normalizeValue(values[vi++], undefined, undefined, {sync:true});
     if (value === undefined) {
       throw new SchemaCompilationError(`Undefined after normalizing`, {value, location});
     }
     valueSet.add(value);
   }
-  const done = () => {
-    if (valueSet.size) {
-      cs.options.values = [...valueSet];
-    }
-    return cs;
+  if (valueSet.size) {
+    cs.options.values = [...valueSet];
   }
-
-  const resume = async (vi) => {
-
-    while (vi < values.length) {
-      handle(await cs._normalizeValue(values[vi++]));
-    }
-    return done();
-  }
-
-
-  let vi = 0;
-
-  while (vi < values.length) {
-    const result = cs._normalizeValue(values[vi++]);
-    if (result instanceof Promise) {
-      return result.then(resolved => { handle(resolved); return resume(vi) })
-    }
-    handle(result);
-  }
-  return done();
-
+  return cs;
 }

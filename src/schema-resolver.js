@@ -417,14 +417,14 @@ export class SchemaResolver
   /**
    * Build a compiled schema from the schema definition.
    * @param {Schema|CompiledSchema|SchemaData} inputSchema
-   * @returns {Promise<CompiledSchema>}
+   * @returns {CompiledSchema}
    */
-  async compile(inputSchema) {
+  compile(inputSchema) {
     if (inputSchema instanceof CompiledSchema) {
       return inputSchema;
     }
     const compiler = new SchemaCompiler(this);
-    return await compiler.compile(inputSchema);
+    return compiler.compile(inputSchema);
   }
 
   /**

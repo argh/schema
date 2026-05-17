@@ -12,10 +12,10 @@ import { formatValue } from '../helpers/format.js';
  * @param {CompiledSchema} inputSchema
  * @param {any} _
  * @param {SchemaLocation} location
- * @returns {Promise<CompiledSchema>}
+ * @returns {CompiledSchema}
  * @this {SchemaCompiler}
  */
-export async function synthesizeKeyDiscrimination(inputSchema, _, location) {
+export function synthesizeKeyDiscrimination(inputSchema, _, location) {
   if (!inputSchema.isUnion) {
     return inputSchema;
   }
@@ -35,7 +35,7 @@ export async function synthesizeKeyDiscrimination(inputSchema, _, location) {
 
   const unionKeySet = new Set();  // it's possible that keys may normalize to the same value :-/
   for (const [unionKey] of unionSchemaEntries) {
-    unionKeySet.add(await unionKeyPropertySchema.normalizeValue(unionKey));
+    unionKeySet.add(unionKeyPropertySchema._normalizeValue(unionKey, undefined, undefined, {sync:true}));
   }
 
   if (unionKeySet.size !== unionSchemaEntries.length) {
@@ -82,10 +82,10 @@ export async function synthesizeKeyDiscrimination(inputSchema, _, location) {
  * @param {any} _target
  * @param {SchemaLocation} _location
  * @param {object} options
- * @returns {Promise<CompiledSchema>}
+ * @returns {CompiledSchema}
  * @this {SchemaCompiler}
  */
-export async function synthesizeAutoDiscrimination(inputSchema, _target, _location, options) {
+export function synthesizeAutoDiscrimination(inputSchema, _target, _location, options) {
   if (!inputSchema.isUnion) {
     return inputSchema;
   }
@@ -145,7 +145,7 @@ export async function synthesizeAutoDiscrimination(inputSchema, _target, _locati
         continue;
       }
       for (const v of propertySchema.values ?? []) {
-        const normalized = await propertySchema.normalizeValue(v);
+        const normalized = propertySchema._normalizeValue(v, undefined, undefined, {sync:true});
         if (normalizerCompatible && normalized !== v) {
           normalizerCompatible = false;
         }
@@ -174,7 +174,7 @@ export async function synthesizeAutoDiscrimination(inputSchema, _target, _locati
     if (values.size > 0) {
       hoisted.values(Array.from(values))
     }
-    inputSchema._setPropertySchema(property, await this.compile(hoisted));
+    inputSchema._setPropertySchema(property, this.compile(hoisted));
   }
   inputSchema.handlers.discriminators = [
     compiler.resolver.compileValueProcessorSpec(compiler, generateAutomaticDiscriminatorFunction(inputSchema))
@@ -186,9 +186,9 @@ export async function synthesizeAutoDiscrimination(inputSchema, _target, _locati
 
 /**
  * @param {CompiledSchema} inputSchema
- * @returns {Promise<CompiledSchema>}
+ * @returns {CompiledSchema}
  */
-export async function copyUnionOptions(inputSchema) {
+export function copyUnionOptions(inputSchema) {
   if (!inputSchema.isUnion) {
     return inputSchema;
   }
