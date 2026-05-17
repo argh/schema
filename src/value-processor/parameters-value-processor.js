@@ -3,8 +3,9 @@ import { ObjectExecutor } from '../executor/object-executor.js';
 import { ValueProcessor } from './value-processor.js';
 import { SchemaLocation } from "../schema-location.js";
 import { ComposedValueProcessor } from './composed-value-processor.js';
-import { formatValue, SchemaError } from '../errors.js';
+import { SchemaError } from '../errors.js';
 import { map } from '../helpers/object.js';
+import { formatValue } from '../helpers/format.js';
 
 /** @typedef {[key:string, executor:Executor]} ObjectExecutorEntry */
 

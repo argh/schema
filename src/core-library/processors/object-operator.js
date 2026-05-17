@@ -1,7 +1,7 @@
 import { parse } from '../../helpers/stringify.js';
-import { formatValue } from '../../errors.js';
 import { EMPTY } from '../../constants.js';
 import { ConstraintError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $object

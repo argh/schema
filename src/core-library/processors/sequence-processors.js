@@ -3,8 +3,8 @@ import { ConditionalExecutor } from '../../executor/conditional-executor.js';
 import { ValueProcessor } from '../../value-processor/value-processor.js';
 import { ComposedValueProcessor } from '../../value-processor/composed-value-processor.js';
 import { SequenceExecutor } from '../../executor/sequence-executor.js';
-import { formatValue } from '../../errors.js';
 import { ConstraintError, ResolverError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * @import {ValueProcessorDefinition} from '../../value-processor/value-processor.js'

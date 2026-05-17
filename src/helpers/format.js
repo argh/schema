@@ -1,5 +1,6 @@
 import { CompiledSchema } from "../compiled-schema.js";
 import { stringify } from './stringify.js';
+import { isPlainObject } from './object.js';
 
 /**
  *
@@ -68,4 +69,53 @@ export function formatArgumentType(schema) {
     }
   }
   return argumentTypeString;
+}
+
+const DELIMITED = /^[^A-Za-z0-9_].+[^A-Za-z0-9_]$/;
+
+/**
+ * @param {any} value
+ * @param {object} [options]
+ * @returns {string}
+ */
+export function formatValue(value, options = {}) {
+  const {delimiterOpen = '«', delimiterClose = '»', maxLength = 40} = options;
+
+  try {
+    if (value === null) {
+      return `${delimiterOpen}null${delimiterClose}`;
+    }
+    else if (value === undefined) {
+      return `${delimiterOpen}undefined${delimiterClose}`;
+    }
+    let valueString;
+    if (typeof value === 'function' && value.name) {
+      valueString = `${delimiterOpen}${value.name}()${delimiterClose}`;
+    }
+    else if (typeof value === 'object' && !isPlainObject(value) && value.constructor?.name) {
+      valueString = `${delimiterOpen}${value.constructor.name}${delimiterClose}`;
+    }
+    else {
+      // get our stringified json  of the value
+      valueString = stringify(value, {delimiterOpen, delimiterClose});
+    }
+    if (typeof value !== 'string'
+        && ((valueString.startsWith('"') && valueString.endsWith('"'))
+            || (valueString.startsWith("'") && valueString.endsWith("'")))) {
+      // if what we got back has quotes but the original wasn't a string, remove them.
+      valueString = valueString.slice(1, -1);
+    }
+    if (!DELIMITED.test(valueString)) {
+      valueString = `${delimiterOpen}${valueString}${delimiterClose}`;
+    }
+    if (valueString.length > 40) {
+      // everything should be delimited here.  grab the final char so we can reattach it.
+      const finalChar = valueString.charAt(valueString.length - 1);
+      valueString = valueString.slice(0, 40) + `...${finalChar}`;
+    }
+    return valueString;
+  }
+  catch (error) {
+    return '�'
+  }
 }

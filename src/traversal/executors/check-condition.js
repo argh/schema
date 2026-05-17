@@ -25,12 +25,18 @@ export function checkCondition(state) {
 
   const result = state.schema._checkCondition(state.input, state.context.getValue(), state.location, state.options);
 
+  const handleConditionResult = (result) => {
+    state.condition = result;
+    if (!result && state.context.final) {
+      state.value = null;
+    }
+    return result ? state : (state.context.final ? null : undefined);
+  }
+
   if (result instanceof Promise) {
     return result.then(resolved => {
-      state.condition = resolved;
-      return resolved ? state : (state.context.final ? null : undefined)
+      return handleConditionResult(resolved);
     })
   }
-  state.condition = result;
-  return state.condition? state : (state.context.final? null : undefined);
+  return handleConditionResult(result);
 }

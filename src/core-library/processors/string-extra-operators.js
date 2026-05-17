@@ -1,7 +1,7 @@
 
-import { formatValue } from '../../errors.js';
 import { FunctionValueProcessor } from '../../value-processor/function-value-processor.js';
 import { ConstraintError, SchemaError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $replace

@@ -1,5 +1,5 @@
-/**
- * Browser smoke tests for @versionzero/schema.
+/*
+ * Browser smoke tests for `@versionzero/schema`.
  *
  * Exercises the primary API surface (.process(), .validate(), .serialize())
  * to verify that the library loads and runs in a browser without Node.js.

@@ -1,9 +1,9 @@
 
-import { formatValue } from '../../errors.js';
 import { FunctionValueProcessor } from '../../value-processor/function-value-processor.js';
 import { ComposedValueProcessor } from '../../value-processor/composed-value-processor.js';
 import { EachExecutor } from '../../executor/each-executor.js';
 import { ConstraintError, SchemaError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $group-by

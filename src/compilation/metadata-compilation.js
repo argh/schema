@@ -1,5 +1,5 @@
 import { CompiledSchema } from "../compiled-schema.js";
-import { formatArgumentType } from '../helpers/format.js';
+import { formatArgumentType, formatValue } from '../helpers/format.js';
 
 /**
  * @param {CompiledSchema} schema
@@ -20,6 +20,16 @@ export function populateMetadata(schema) {
   }
   if (!schema.metadata.valueName) {
     schema.metadata.valueName = schema.metadata.parserTypeHint ?? 'value';
+  }
+
+  if (schema.options.default !== undefined && schema.metadata.defaultValueDescription === undefined) {
+    if (typeof schema.options.default === 'function') {
+      // by default, suppress this.
+      schema.metadata.defaultValueDescription = '';
+    }
+    else {
+      schema.metadata.defaultValueDescription = formatValue(schema.options.default);
+    }
   }
   return schema;
 }

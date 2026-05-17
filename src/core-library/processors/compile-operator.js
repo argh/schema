@@ -1,8 +1,8 @@
-import { formatValue } from '../../errors.js';
 import { ParametersValueProcessor } from '../../value-processor/parameters-value-processor.js';
 import { ParameterizedValueProcessor } from '../../value-processor/parameterized-value-processor.js';
 import { FunctionValueProcessor } from '../../value-processor/function-value-processor.js';
 import { SchemaError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $compile

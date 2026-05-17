@@ -1,7 +1,7 @@
 import { CompiledSchema } from '../../compiled-schema.js';
-import { formatValue } from "../../errors.js";
 import { SchemaError } from '../../errors.js';
 import { SchemaLocation } from "../../schema-location.js";
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $metadata

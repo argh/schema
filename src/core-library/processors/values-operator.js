@@ -1,5 +1,5 @@
-import { formatValue } from '../../errors.js';
 import { ConstraintError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $values

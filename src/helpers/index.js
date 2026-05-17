@@ -4,7 +4,7 @@
 export { toCamelCase, toPascalCase, toConstantCase, toKebabCase, toCapitalize, toTitleCase } from './case.js';
 export { debug } from './debug-sink.js';
 export { deepMerge, deepEquals, deepAssign, deepValue, deepPrune } from './deep.js';
-export { formatArgumentType } from './format.js';
+export { formatArgumentType, formatValue } from './format.js';
 export { hasStringProperties } from './has-string-properties.js';
 export { isPlainObject, isObject, isEmpty, isPrimitive, isConstructor, isConstructible, isNativeClass, map } from './object.js';
 export { parseDate } from './parse-date.js';

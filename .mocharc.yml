@@ -1,0 +1,6 @@
+require:
+  - test/_setup.js
+timeout: 0
+ui: bdd
+recursive: true
+exit: true

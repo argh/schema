@@ -709,7 +709,7 @@ export class Schema
   }
 
   /**
-   * Syntactic sugar for the oppositive of strict
+   * Syntactic sugar for the opposite of strict
    *
    * @param {boolean} [value]
    * @returns {Schema}
@@ -1059,10 +1059,13 @@ export class Schema
 
     return new Schema()
       .option('reference', true)
-      .transformer(/** @type {ValueProcessorFunction} */ (_value, config, location) => {
+      .transformer(/** @type {ValueProcessorFunction} */ (_value, config, location, options) => {
         const name = propertyName ?? location.name;
         if (location.parent === undefined) {
-          throw new SchemaError('A top-level schema cannot have an inherited value');
+          if (location.schema.strict !== false) {
+            throw new SchemaError('A top-level schema cannot have an inherited value');
+          }
+          return undefined;
         }
         let ancestorLocation = location.parent?.parent;
 
@@ -1074,7 +1077,10 @@ export class Schema
           }
           ancestorLocation = ancestorLocation.parent;
         }
-        throw new SchemaError(`Inherited property "${name}" not found in any ancestor of "${location}"`);
+        if (location.schema.strict !== false) {
+          throw new SchemaError(`Inherited property "${name}" not found in any ancestor of "${location}"`);
+        }
+        return undefined;
 
       })
 

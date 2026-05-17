@@ -1,6 +1,6 @@
 import { CompiledSchema } from '../../compiled-schema.js';
-import { formatValue } from '../../errors.js';
 import { SchemaError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $process

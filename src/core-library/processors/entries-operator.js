@@ -1,6 +1,6 @@
-import { formatValue } from '../../errors.js';
 import { isPlainObject } from '../../helpers/object.js';
 import { ConstraintError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /**
  * ## $entries

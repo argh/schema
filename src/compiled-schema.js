@@ -12,7 +12,6 @@ import {
 } from './traversal/executors/index.js';
 
 import {
-  formatValue,
   FinalizeError,
   NormalizeError,
   SchemaError,
@@ -23,6 +22,7 @@ import {
 import { deepEquals, deepPrune } from './helpers/deep.js';
 import { isTruthy } from './helpers/truthy.js';
 import { isPlainObject } from './helpers/object.js';
+import { formatValue } from './helpers/format.js';
 
 
 /** @import { TraversalContextOptions } from './traversal/traversal-context.js' */
@@ -1151,7 +1151,7 @@ export class CompiledSchema
       }
       throw new ValidationError('Schema does not accept an undefined input');
     }
-    if (!Array.isArray(this.values)) {
+    if (!Array.isArray(this.values) || this.values.length === 0) {
       return;
     }
     const found = this.values.some(v => deepEquals(v, value));

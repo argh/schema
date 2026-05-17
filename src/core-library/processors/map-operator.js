@@ -1,10 +1,10 @@
 
 import { ComposedValueProcessor } from '../../value-processor/composed-value-processor.js';
 import { FunctionValueProcessor } from '../../value-processor/function-value-processor.js';
-import { formatValue } from '../../errors.js';
 import { EachExecutor } from '../../executor/each-executor.js';
 import { isPlainObject } from '../../helpers/object.js';
 import { ConstraintError, SchemaError } from '../../errors.js';
+import { formatValue } from '../../helpers/format.js';
 
 /** @import { ValueProcessorDefinition } from '../../value-processor/value-processor.js' */
 

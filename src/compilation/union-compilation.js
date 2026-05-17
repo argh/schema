@@ -2,8 +2,9 @@ import { CompiledSchema } from '../compiled-schema.js';
 import { SchemaCompiler } from '../schema-compiler.js';
 import { SchemaLocation } from '../schema-location.js';
 import { Schema } from '../schema.js';
-import { formatValue, SchemaCompilationError, SchemaError, UnionResolutionError } from '../errors.js';
+import { SchemaCompilationError, SchemaError, UnionResolutionError } from '../errors.js';
 import { deepEquals } from '../helpers/deep.js';
+import { formatValue } from '../helpers/format.js';
 
 /** @import {ValueProcessorFunction} from '../value-processor/value-processor.js' */
 

@@ -404,6 +404,9 @@ export class TraversalState
 //      this.isComplete = true;
       return true;
     }
+    if (!this.condition && this.context.final) {
+      return true;  // doesn't look like this is needed
+    }
     if (this.value === undefined) {
       // We are definitely not complete if we have no value and required/default settings imply more work to do
       if (this.isRequired) {

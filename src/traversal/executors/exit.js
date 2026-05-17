@@ -1,5 +1,4 @@
 import { TraversalState } from '../traversal-state.js';
-
 import { SchemaError } from '../../errors.js';
 
 /**
@@ -64,6 +63,7 @@ export function exit(state) {
   else {
     if (parentContainer[key] !== state.value) {
       parentContainer[key] = state.value;
+      state.context.update();   // todo - monitor whether this triggers too many extra passes for complex deps!
     }
 
     if (!state.isUnion) {
