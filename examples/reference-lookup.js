@@ -31,7 +31,7 @@ const resolver = new SchemaResolver();
 // We want to treat string codes differently than numeric codes, so we'll use a union to define the two styles.
 // We'll precompile it for efficiency, since it won't be augmented by any of the places where it is used.
 
-const idObjectSchema = await resolver.compile(new Schema('object')
+const idObjectSchema = resolver.compile(new Schema('object')
   .property('prefix', new Schema('string').required())
   .property('code',
     new Schema().required()
@@ -121,7 +121,7 @@ const catalogSchema = new Schema('object')
     new Schema(groupSchema).property('*', productSchema)
   )
 
-const compiledCatalogSchema = await resolver.compile(catalogSchema);
+const compiledCatalogSchema = resolver.compile(catalogSchema);
 
 // Feed it some data....
 const catalogData = {

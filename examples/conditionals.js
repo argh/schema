@@ -27,7 +27,7 @@ const resolver = new SchemaResolver();
 
 // Here's a little schema that validates http/https URLs:
 
-const goodSchema1 = await resolver.compile(
+const goodSchema1 = resolver.compile(
   new Schema('object')
     .property('url', new Schema('string')
       .validator({$all: ['$url', {$any: [{'$has-prefix': 'http:'}, {'$has-prefix': 'https:'}]}]})
@@ -65,7 +65,7 @@ await expectUrlFails(goodSchema1, 'mailto:user@domain.com');
 
 // Here's a similar looking schema, but it has a problem.  The provided validator function returns a boolean,
 // a value type that isn't valid for this schema!
-const badSchema1 = await resolver.compile(
+const badSchema1 = resolver.compile(
   new Schema('object')
     .property('url', new Schema('string')
       .validator('$url')
@@ -79,7 +79,7 @@ await expectUrlFails(badSchema1, 'https://www.google.com');
 // Since simple functions are useful for checking validity, one solution is to wrap the function in a constraint
 // like `$assert` which will return the original input if a provided processor (the function, in this case)
 // returns a truthy value:
-const okSchema1 = await resolver.compile(
+const okSchema1 = resolver.compile(
   new Schema('object')
     .property('url', new Schema('string')
       .validator('$url')
@@ -89,7 +89,7 @@ const okSchema1 = await resolver.compile(
 await expectUrlPasses(okSchema1, 'https://www.google.com');
 
 // Alternatively, you could implement the validation logic as a full constraint instead, but it's more verbose:
-const okSchema2 = await resolver.compile(
+const okSchema2 = resolver.compile(
   new Schema('object')
     .property('url', new Schema('string')
       .validator('$url')
@@ -110,7 +110,7 @@ await expectUrlPasses(okSchema2, 'https://www.google.com');
 //
 // Here we will run a pipeline to extract the protocol and use the `$in` constraint to check it is either http or https.
 // Wrapping it in `$require`
-const okSchema3 = await resolver.compile(
+const okSchema3 = resolver.compile(
   new Schema('object')
     .property('url', new Schema('string')
       .validator('$url')
@@ -143,7 +143,7 @@ const schemas = new Map();
 
 for (const conditional of ['$if', '$gate', '$check', '$when', '$try']) {
 
-  schemas.set(conditional, await resolver.compile(new Schema('object')
+  schemas.set(conditional, resolver.compile(new Schema('object')
     .property('input', new Schema('number'))
     .property('p1', new Schema(base)
       .transformer(conditional)
@@ -193,7 +193,7 @@ assert.deepEqual(v_$if_bad, {input: 666, p1: 666, p4: 'no', p5: 'no', p6: 666});
 const distanceSchema = new Schema('number')
   .normalizer({$if: [{$pipeline: [{$reference: '^units'}, {$eq: 'feet'}]}, v => (v * 0.3048), v => (v * 1)]})
 
-const s_$if_rationale = await resolver.compile(
+const s_$if_rationale = resolver.compile(
   new Schema('object')
     .property('units', new Schema('string')
       .default('meters')
@@ -264,7 +264,7 @@ assert.deepEqual(v_$try_bad, {input: 666, p1: 666, p4: 'no', p5: 'no', p6: 'not 
 
 // Observe that you can also directly use the conditionals as pipeline operators
 
-const pipe = await resolver.compile(
+const pipe = resolver.compile(
   new Schema('number')
     .transformer(v => v - 2)
     .transformer('$check')

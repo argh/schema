@@ -46,7 +46,7 @@ try {
   // -- 1. Simple string processing --------------------------------
   log('1. String schema with normalizers');
 
-  const greeting = await resolver.compile(
+  const greeting = resolver.compile(
     new Schema('string')
       .normalizer('$trim')
       .normalizer('$title-case')
@@ -60,7 +60,7 @@ try {
   // -- 2. Object schema with validation ----------------------------
   log('\n2. Object schema: user profile');
 
-  const userSchema = await resolver.compile(
+  const userSchema = resolver.compile(
     new Schema('object')
       .property('name', new Schema('string')
         .required()
@@ -104,7 +104,7 @@ try {
   // -- 4. Array schema ---------------------------------------------
   log('\n4. Array schema: tag list');
 
-  const tagsSchema = await resolver.compile(
+  const tagsSchema = resolver.compile(
     new Schema('array')
       .property('*', new Schema('string')
         .normalizer(['$trim', '$lowercase'])
@@ -136,7 +136,7 @@ try {
     typeof value === 'string' ? [...value].reverse().join('') : value
   );
 
-  const reverser = await resolver.compile(
+  const reverser = resolver.compile(
     new Schema('string').normalizer('$reverse')
   );
 

@@ -49,7 +49,7 @@ treeNodeSchema
   .property('left', treeNodeSchema)
   .property('right', treeNodeSchema)
 
-const schema = await resolver.compile(treeNodeSchema);
+const schema = resolver.compile(treeNodeSchema);
 
 const input = Array.from({length: 1000}, () => Math.floor(Math.random() * 1000)) ;
 

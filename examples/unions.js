@@ -7,7 +7,7 @@ const resolver = new SchemaResolver();
 
 // In this example, we define a union schema that accepts strings and integers from 1-10.
 // We define our own discriminator, leveraging the $type operator to match the named union schemas.
-const typeSchema = await resolver.compile(
+const typeSchema = resolver.compile(
   new Schema()
     .unionDiscriminator('$type')
     .unionSchema('string', new Schema('string')
@@ -34,7 +34,7 @@ await assert.rejects(typeSchema.process({}), SchemaError);
 // In this example, we'll define a more complex schema with child properties, and allow the compiler
 // to automatically generate a discriminator.
 
-const postSchema = await resolver.compile(
+const postSchema = resolver.compile(
   new Schema('object')
     .property('id', new Schema('string')
       .required()

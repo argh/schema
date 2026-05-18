@@ -80,7 +80,7 @@ testThing.stuff.data = 12345;  // allowed, but yields a type warning
 // First attempt: here's a simple schema to convert raw data into a Thing.
 // This gets us part of the way there.
 
-const inadequateThingSchema = await resolver.compile(
+const inadequateThingSchema = resolver.compile(
   new Schema('object')
     .transformer(input => {
       if (input instanceof Thing) {
@@ -145,7 +145,7 @@ catch (error) {
 // 2. Mark "name" as implicit so we don't need to nullify the assignment.
 // 3. Mark "stuff" implicit to use the object in Thing but still allow the child assignments.
 
-const betterThingSchema = await resolver.compile(new Schema('object')
+const betterThingSchema = resolver.compile(new Schema('object')
   .transformer(value => {
     // we could short-circuit if it's already a Thing, but for this example, let's always make a new one.
     // return (value instanceof Thing)? value : new Thing();

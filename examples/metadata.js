@@ -3,7 +3,7 @@ const resolver = new SchemaResolver();
 
 // Use the $metadata keyword to look up metadata in a sibling property using a relative path.
 // (If 'temperature' lacked 'unit' metadata, $metadata would inherit 'metric' from the parent.)
-const weatherSchema = await resolver.compile(
+const weatherSchema = resolver.compile(
   new Schema('object')
     .meta('unit', 'metric')
     .property('temperature', new Schema('number').meta('unit', '°C'))
@@ -18,7 +18,7 @@ console.log('weather:', weather);
 
 // Add some metadata to the schema so we can introspect it...
 
-const rootSchema = await resolver.compile(
+const rootSchema = resolver.compile(
   new Schema('object')
     .property('verbose', new Schema('boolean')
       .meta('description', 'enable verbose mode')

@@ -47,7 +47,7 @@ const colorComponentSchema = new Schema(hexByteSchema)
 // to a primitive, so we need to mark it as opaque so that we don't try to assign the colors
 // incrementally.
 
-const colorObjectSchema = await resolver.compile(
+const colorObjectSchema = resolver.compile(
   new Schema('any')
     .property('red', colorComponentSchema)
     .property('green', colorComponentSchema)
@@ -82,7 +82,7 @@ catch (error) {
 // Instead of marking red/green/blue as implicit, we can leave the color object
 // as opaque, but create a union that can accept either format:
 
-const hybridColorSchema = await resolver.compile(
+const hybridColorSchema = resolver.compile(
   new Schema('any')
     .unionSchema('color-object', colorObjectSchema)
     .unionSchema('color-string',

@@ -42,7 +42,7 @@ import { Schema, SchemaResolver } from '@versionzero/schema';
 
 const resolver = new SchemaResolver();
 
-const helloSchema = await resolver.compile(
+const helloSchema = resolver.compile(
   new Schema('string')
     .normalizer('$title-case')
     .validator({$matches: /^Hello.+/})
@@ -75,7 +75,7 @@ const meetingTextFieldSchema = new Schema('string')
 // or you can register it to the resolver to reference by name
 resolver.registerSchema('meeting-text', meetingTextFieldSchema);
 
-const meetingSchema = await resolver.compile(
+const meetingSchema = resolver.compile(
   new Schema('object')
     .property('id', new Schema('string')
       .required()
