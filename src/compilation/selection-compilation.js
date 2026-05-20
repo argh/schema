@@ -60,14 +60,14 @@ export function populateChildSelectorValues(inputSchema, _, location) {
       selectionValue = selectionPropertyName;
     }
 
-    if (existingSelectorValueSet.size && !existingSelectorValueSet.has(selectionValue)) {
+    const selectorValue = selectorPropertySchema._normalizeValue(selectionValue, undefined, undefined, {sync: true});
+
+    if (existingSelectorValueSet.size && !existingSelectorValueSet.has(selectorValue)) {
       throw new SchemaCompilationError(
         `Existing selector schema values {${[...existingSelectorValueSet].join('|')}} are missing selection`, {value: selectionValue,
           location: selectorPropertyLocation});
     }
 
-    // FIXME - figure out how we can avoid doing an await
-    const selectorValue = selectorPropertySchema._normalizeValue(selectionValue, undefined, undefined, {sync: true});
     selectionValueSet.add(selectorValue);
   }
 
