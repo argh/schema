@@ -9,11 +9,6 @@
  * @property {(schema:ISchema) => SchemaData|undefined} toData - Serialize schema to plain object
  */
 
-import { TraversalContext } from './traversal/traversal-context.js';
-import { TraversalState } from './traversal/traversal-state.js';
-import { Executor } from './executor/executor.js';
-
-/** @import { SchemaLocation } from './schema-location.js' */
 /** @import { ValueProcessorSpec } from './value-processor/value-processor.js' */
 
 /**
@@ -40,6 +35,7 @@ import { Executor } from './executor/executor.js';
   * @property {boolean} [allowEmpty] - whether an array type or string type can be empty
   * @property {boolean} [allowUndefined] - whether undefined values can be passed through this schema
   * @property {boolean} [allowErrors] - whether to throw when a processor returns an Error, or treat it as a legal value
+  * @property {boolean} [allowUnknownValues] - when true, values are advisory (for expansion/metadata) and do not gate ensureAccepts
   * @property {boolean} [strict] - whether to do strict typechecking (defaults to true; must be explicitly false to be "lax")
   * @property {boolean} [reference] - disallow direct assignment; value will be inherited from a parent
   * @property {boolean} [required] - flag indicating whether this field is required
@@ -48,7 +44,7 @@ import { Executor } from './executor/executor.js';
   * @property {boolean} [dynamic] - true/undefined means treat functional values as dynamic lookups; false means treat functions as values
   * @property {string} [context] - triggers value to be copied to the context field with this name
   * @property {any} [default] - default value
-  * @property {Array<any>} [values] - list of legal input values for this field
+  * @property {Array<any>} [values] - list of legal input values for this field (each is normalized during compilation)
   * @property {boolean} [selector] - true if this schema acts as a selector
   * @property {boolean|string} [selection] - this schema activates if the selector matches the value, or matches this prop name if true
   */

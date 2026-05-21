@@ -14,7 +14,7 @@ import {
 } from './errors.js';
 import { isKeywordValueProcessorSpec } from './value-processor/spec.js';
 import {
-  copyUnionOptions, synthesizeKeyDiscrimination, synthesizeAutoDiscrimination,
+  copyUnionOptions, synthesizeKeyDiscrimination, synthesizeAutoDiscrimination, synthesizeUnionValues,
 } from './compilation/union-compilation.js';
 
 import { populateChildSelectorValues } from './compilation/selection-compilation.js';
@@ -295,7 +295,7 @@ export class SchemaCompiler extends CompiledSchema {
 
       .finalizer({$if: [
           (inputSchema => inputSchema.isUnion),
-          {$pipeline: [synthesizeKeyDiscrimination, synthesizeAutoDiscrimination, copyUnionOptions].map(p => p.bind(this))},
+          {$pipeline: [synthesizeUnionValues, synthesizeKeyDiscrimination, synthesizeAutoDiscrimination, copyUnionOptions].map(p => p.bind(this))},
           '$input'
         ]
       })

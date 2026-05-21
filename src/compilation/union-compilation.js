@@ -124,6 +124,8 @@ export function synthesizeAutoDiscrimination(inputSchema, _target, _location, op
     let normalizerCompatible = true;
     let firstNormalizers;
 
+    let allHaveValues = true;
+
     for (const unionSchema of schemaSet) {
       const propertySchema = unionSchema.getPropertySchema(property);
       if (!propertySchema) {
@@ -142,6 +144,7 @@ export function synthesizeAutoDiscrimination(inputSchema, _target, _location, op
         }
       }
       if (!propertySchema.hasValues) {
+        allHaveValues = false;
         continue;
       }
       for (const v of propertySchema.values ?? []) {
@@ -172,7 +175,10 @@ export function synthesizeAutoDiscrimination(inputSchema, _target, _location, op
       }
     }
     if (values.size > 0) {
-      hoisted.values(Array.from(values))
+      hoisted.values(Array.from(values));
+      if (!allHaveValues) {
+        hoisted.option('allowUnknownValues', true);
+      }
     }
     inputSchema._setPropertySchema(property, this.compile(hoisted));
   }
@@ -183,6 +189,51 @@ export function synthesizeAutoDiscrimination(inputSchema, _target, _location, op
   return inputSchema;
 }
 
+
+/**
+ * Collect values from union members onto the union schema itself.
+ * When all members define values, the union gets the full set (strict).
+ * When only some members define values, the union gets the known subset
+ * and `allowUnknownValues` is set so that `ensureAccepts` does not gate.
+ *
+ * Skips unions that already have values defined, or that have no members
+ * with values.
+ *
+ * @param {CompiledSchema} inputSchema
+ * @returns {CompiledSchema}
+ * @package
+ */
+export function synthesizeUnionValues(inputSchema) {
+  if (!inputSchema.isUnion || inputSchema.hasValues) {
+    return inputSchema;
+  }
+
+  const values = new Set();
+  let allHaveValues = true;
+
+  for (const [, unionSchema] of inputSchema.unionSchemaEntries) {
+    if (!unionSchema.hasValues) {
+      allHaveValues = false;
+      continue;
+    }
+    // @ts-ignore
+    for (const v of unionSchema.values) {
+      values.add(v);
+    }
+  }
+
+  if (values.size === 0) {
+    return inputSchema;
+  }
+
+  inputSchema.options.values = [...values];
+
+  if (!allHaveValues) {
+    inputSchema.options.allowUnknownValues = true;
+  }
+
+  return inputSchema;
+}
 
 /**
  * @param {CompiledSchema} inputSchema

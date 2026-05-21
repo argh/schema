@@ -277,8 +277,8 @@ describe('Assignments - Indirection (inherit, reference)', function() {
 
         assert.strictEqual(result.service.env, 'production');
         // Inherited value should be omitted from serialization
-        assert.strictEqual(serialized.service.env, undefined);
-        assert.strictEqual(serialized.service.name, 'api');
+        assert.strictEqual(serialized?.service?.env, undefined);
+        assert.strictEqual(serialized?.service?.name, 'api');
       });
     });
   });

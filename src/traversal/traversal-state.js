@@ -5,7 +5,7 @@ import { Executor } from "../executor/executor.js";
 import { SchemaError } from '../errors.js';
 import { EMPTY } from '../constants.js';
 import { deepEquals } from '../helpers/deep.js';
-import { isEmpty, isPlainObject, isPrimitive } from '../helpers/object.js';
+import { isEmpty, isObject, isPlainObject, isPrimitive } from '../helpers/object.js';
 
 export class TraversalState
 {
@@ -333,6 +333,43 @@ export class TraversalState
       this.completed = true;
     }
   }
+
+  /**
+   * Sometimes transformers get called with a populated pending object.  If the transformed object isn't opaque,
+   * we can do a selective shallow copy over to the transformed object.
+   * @param {any} pending
+   * @param {any} value
+   * @package
+   */
+  copyPendingChildValues(pending, value) {
+    if (value !== undefined && !this.isOpaque && this.hasChildren && value !== pending && isObject(value) && isObject(pending)) {
+      // we're not opaque, so that means we will ensure it has everything copied into it that it needs.
+
+      for (const [pendingKey, pendingValue] of Object.entries(pending)) {
+        if (pendingValue === undefined) {
+          continue;
+        }
+        const child = this.#children.get(pendingKey);
+
+        if (child?.schema && !child.schema.isImplicit) {
+          if (child.isPruned) {
+            if (value[pendingKey] !== undefined) {
+              delete value[pendingKey];
+            }
+          }
+          else {
+            if (value[pendingKey] !== pendingValue) {
+              value[pendingKey] = pendingValue;
+            }
+          }
+
+        }
+      }
+    }
+
+  }
+
+
   invalidate() {
     // todo - do we really want to clear the condition?
     this.#condition = (this.location?.schema && !this.location.schema.hasConditions) ? true : undefined;
@@ -474,7 +511,11 @@ export class TraversalState
   }
   set completed(value) {
     this.#completed = Boolean(value);
-
+    if (this.#completed && !this.#context.compiling) {
+      if (this.#completed && this.#value === undefined && this.#condition !== false && this.#input !== undefined) {
+        console.log('WUUUT')
+      }
+    }
     if (!this.#completed && this.parent?.completed) {
       this.parent.completed = false;
     }

@@ -1,6 +1,6 @@
 import { TraversalState } from '../traversal-state.js';
 import { deepEquals } from '../../helpers/deep.js';
-import { isEmpty } from '../../helpers/object.js';
+import { isEmpty, isObject } from '../../helpers/object.js';
 
 /**
  * @param {TraversalState} state
@@ -38,6 +38,9 @@ export function transformEarly(state) {
    */
   const updateState = (transformed) => {
     if (transformed !== undefined) {
+      if (transformed !== state.value && state.hasChildren) {
+        state.copyPendingChildValues(state.pending, state.value);
+      }
       state.pending = undefined;
       state.value = transformed;
     }

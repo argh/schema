@@ -813,7 +813,7 @@ export class CompiledSchema
    * Transform a normalized input value for the final target based on this schema and provided context.
    *
    * Runs all transformer value processors in a pipeline until one returns undefined or throws an error.
-   * - The input to the pipeline is be assumed to be normalized.
+   * - The input to the pipeline is assumed to be normalized.
    * - An error may be thrown if the input cannot be transformed.
    * - If a transformer depends upon the overall target, it may return undefined to signal
    *   that the transform should be retried when the target is updated.
@@ -871,7 +871,7 @@ export class CompiledSchema
    * Transform a normalized input value for the final target based on this schema and provided context.
    *
    * Runs all transformer value processors in a pipeline until one returns undefined or throws an error.
-   * - The input to the pipeline is be assumed to be normalized.
+   * - The input to the pipeline is assumed to be normalized.
    * - An error may be thrown if the input cannot be transformed.
    * - If a transformer depends upon the overall target, it may return undefined to signal
    *   that the transform should be retried when the target is updated.
@@ -1158,6 +1158,9 @@ export class CompiledSchema
       throw new ValidationError('Schema does not accept an undefined input');
     }
     if (!Array.isArray(this.values) || this.values.length === 0) {
+      return;
+    }
+    if (this.options.allowUnknownValues) {
       return;
     }
     const found = this.values.some(v => deepEquals(v, value));

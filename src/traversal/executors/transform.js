@@ -55,6 +55,9 @@ export function transform(state) {
    */
   const updateState = (transformed) => {
     if (transformed !== undefined) {
+      if (transformed !== state.value && state.hasChildren) {
+        state.copyPendingChildValues(state.pending, transformed);
+      }
       state.pending = undefined;
       state.value = transformed;
     }
