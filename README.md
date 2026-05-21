@@ -220,10 +220,14 @@ or compile-time type integration (Zod, Valibot). Both are useful, and if you're
 building a single application in TypeScript with a shared type definition between
 producer and consumer, Zod is probably what you want.
 
-This library optimizes for something different: **decoupled composition across
+This library optimizes for something different: **expressive runtime contracts between
 subsystems that don't know about each other.**  
 
-_Read more about this [in the full documentation](https://docs.v0.net/schema/rationale)._ 
+You can think of it like having a toolkit for composing rich runtime-enforced interfaces
+with reflection; embracing the dynamic nature of JavaScript, rather than pretending it has
+static types.
+
+_Read more about this [in the full documentation](https://docs.v0.net/schema/rationale)._
 
 ## License
 

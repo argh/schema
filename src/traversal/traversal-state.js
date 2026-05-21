@@ -511,11 +511,7 @@ export class TraversalState
   }
   set completed(value) {
     this.#completed = Boolean(value);
-    if (this.#completed && !this.#context.compiling) {
-      if (this.#completed && this.#value === undefined && this.#condition !== false && this.#input !== undefined) {
-        console.log('WUUUT')
-      }
-    }
+
     if (!this.#completed && this.parent?.completed) {
       this.parent.completed = false;
     }
