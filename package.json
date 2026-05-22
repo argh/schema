@@ -34,7 +34,7 @@
     "versionzero",
     "v0"
   ],
-  "author": "argh",
+  "author": "Jolly Roger <argh@v0.net> (https://github.com/argh)",
   "license": "Apache-2.0",
   "type": "module",
   "engines": {
