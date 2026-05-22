@@ -2,7 +2,24 @@
   "name": "@versionzero/schema",
   "version": "0.9.0-main.4",
   "description": "A composable schema library that supports asynchronous processing",
-  "sideEffects": false,
+  "license": "Apache-2.0",
+  "author": "Jolly Roger <argh@v0.net> (https://github.com/argh)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/argh/schema.git"
+  },
+  "keywords": [
+    "schema",
+    "argh",
+    "versionzero",
+    "v0"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=19",
+    "tsc": ">=5.5"
+  },
+  "sideEffects": ["./src/core-library/**", "./src/core-library-node/**"],
   "main": "./src/index.js",
   "files": [
     "src/**",
@@ -23,23 +40,6 @@
       "default": "./src/errors.js",
       "types": "./types/errors/index.d.ts"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/argh/schema.git"
-  },
-  "keywords": [
-    "schema",
-    "argh",
-    "versionzero",
-    "v0"
-  ],
-  "author": "Jolly Roger <argh@v0.net> (https://github.com/argh)",
-  "license": "Apache-2.0",
-  "type": "module",
-  "engines": {
-    "node": ">=19",
-    "tsc": ">=5.5"
   },
   "scripts": {
     "build:types": "tsc --declaration --emitDeclarationOnly",
