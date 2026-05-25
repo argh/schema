@@ -1,6 +1,6 @@
 {
   "name": "@versionzero/schema",
-  "version": "0.9.0-main.6",
+  "version": "1.0.0",
   "description": "A composable schema library that supports asynchronous processing",
   "license": "Apache-2.0",
   "publishConfig": {
@@ -63,7 +63,7 @@
     "test:browser": "playwright test",
     "test:all": "npm test && npm run test:browser",
     "clean": "rm -rf types docs-output* processors-output* .mdrun .c8 .nyc_output",
-    "release:dry": "npx -p semantic-release@24 -p @semantic-release/exec@7 semantic-release --dry-run --no-ci"
+    "release:dry": "npx -p semantic-release@24 -p @semantic-release/exec@7 -p @semantic-release/changelog@6 -p @semantic-release/git@10 semantic-release --dry-run --no-ci"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

@@ -13,7 +13,15 @@
         "prepareCmd": "npm run build:types"
       }
     ],
+    "@semantic-release/changelog",
     "@semantic-release/npm",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]"
+      }
+    ],
     "@semantic-release/github"
   ]
 }
