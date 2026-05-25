@@ -12,174 +12,18 @@ on:
         type: boolean
         default: false
 
-# Least privilege by default; the release job widens its own scope below.
-permissions:
-  contents: read
-
-# Never let two releases publish concurrently; don't cancel one mid-publish.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - name: Browser tests
-        if: hashFiles('playwright.config.*') != ''
-        run: |
-          npx playwright install --with-deps chromium
-          npm run test:browser
-      - name: Type-check
-        run: npm run build:types --if-present
-
-  release:
-    needs: test
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    outputs:
-      # `released` is set only when semantic-release cut a new version this run.
-      released: ${{ steps.report.outputs.released }}
-      version: ${{ steps.report.outputs.version }}
+  ci:
+    uses: argh/ci/.github/workflows/release-node.yml@v1
     permissions:
-      contents: write       # push the git tag + GitHub Release + version commit-back
-      issues: write         # semantic-release release comments
-      pull-requests: write  # semantic-release release comments
-      id-token: write       # npm provenance (only used if enabled below)
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false   # semantic-release authenticates with its own token
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
-
-      # Routing lives in package.json, not here. Read publishConfig.registry and
-      # derive auth + provenance for whatever registry it names — so this same
-      # workflow serves verdaccio, npmjs, or GitHub Packages with no edits.
-      - name: Resolve publish target
-        id: route
-        run: |
-          REG=$(node -p "require('./package.json').publishConfig?.registry || ''")
-          PRIV=$(node -p "require('./package.json').private ? 'true' : 'false'")
-          if [ -z "$REG" ] && [ "$PRIV" != "true" ]; then
-            echo "::error::package.json declares neither publishConfig.registry nor private:true — refusing (npm would default to public npmjs)."
-            exit 1
-          fi
-          HOST=$(printf '%s' "$REG" | sed -E 's#^https?://##; s#/.*$##')
-          echo "host=$HOST" >> "$GITHUB_OUTPUT"
-          [ "$HOST" = "registry.npmjs.org" ] && echo "provenance=true" >> "$GITHUB_OUTPUT" || echo "provenance=false" >> "$GITHUB_OUTPUT"
-          echo "Resolved registry: ${REG:-<private:true — versioning/tagging only, no publish>}"
-
-      # Committed version == last release (commit-back keeps it so). A release
-      # changes it; a no-op (chore/docs/etc.) leaves it untouched.
-      - name: Snapshot version
-        id: pre
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Pick the token for the resolved registry. With `secrets: inherit`
-          # each repo supplies only the one it actually has; the rest resolve empty.
-          NPM_TOKEN: >-
-            ${{ steps.route.outputs.host == 'registry.npmjs.org' && secrets.NPM_TOKEN
-            || steps.route.outputs.host == 'npm.pkg.github.com' && secrets.GITHUB_TOKEN
-            || secrets.VERDACCIO_TOKEN }}
-          # Provenance only applies to public npmjs; off elsewhere (verdaccio rejects it).
-          NPM_CONFIG_PROVENANCE: ${{ steps.route.outputs.provenance }}
-          # On push this input is empty -> 'false' (a major on main is gated).
-          ALLOW_MAJOR: ${{ github.event.inputs.allow_major || 'false' }}
-        # The four default plugins ship with core; exec/changelog/git are extra.
-        run: npx -p semantic-release@24 -p @semantic-release/exec@7 -p @semantic-release/changelog@6 -p @semantic-release/git@10 semantic-release
-
-      # A changed workspace version means a new artifact was published this run.
-      - name: Detect release
-        id: report
-        if: always()
-        run: |
-          AFTER=$(node -p "require('./package.json').version")
-          echo "version=$AFTER" >> "$GITHUB_OUTPUT"
-          if [ "$AFTER" != "${{ steps.pre.outputs.version }}" ]; then
-            echo "released=$AFTER" >> "$GITHUB_OUTPUT"
-          fi
-
-  # ── Slack build notification ──────────────────────────────────
-  # Fires only when something interesting happened: a new artifact was
-  # published, or the build failed to produce one. Silent on no-op pushes.
-  # Separate job so a test failure (which skips release) still notifies.
-  notify:
-    needs: [test, release]
-    if: ${{ always() && github.event_name != 'pull_request' && (needs.release.outputs.released != '' || needs.test.result != 'success' || needs.release.result != 'success') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Capture failure logs
-        id: failure-logs
-        if: needs.test.result != 'success' || needs.release.result != 'success'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          LOGS=$(gh run view ${{ github.run_id }} --log-failed 2>/dev/null | tail -30 || echo "Could not retrieve logs")
-          # Store in env file to handle multiline safely
-          {
-            echo "FAILURE_LOGS<<GHEOF"
-            echo "$LOGS"
-            echo "GHEOF"
-          } >> "$GITHUB_ENV"
-
-      - name: Notify Slack
-        run: |
-          # 'success' only when neither upstream job failed or was skipped.
-          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.release.result }}" == "success" ]]; then
-            STATUS="success"
-          else
-            STATUS="failure"
-          fi
-          PACKAGE=$(node -p "require('./package.json').name")
-          VERSION="${{ needs.release.outputs.released }}"
-          VERSION="${VERSION:-${{ needs.release.outputs.version }}}"
-          VERSION="${VERSION:-$(node -p "require('./package.json').version")}"
-          BRANCH="${{ github.ref_name }}"
-          COMMIT_MSG=$(git log -1 --format='%s' ${{ github.sha }})
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          if [[ "$STATUS" == "success" ]]; then
-            HEADER="\`$PACKAGE@$VERSION\` ($BRANCH) — $COMMIT_MSG — <$RUN_URL|details>"
-            TEXT=":bananadance: $HEADER"
-          else
-            HEADER="~\`$PACKAGE@$VERSION\`~ ($BRANCH) — $COMMIT_MSG — <$RUN_URL|details>"
-            TEXT=":this-is-fine: $HEADER"
-            if [[ -n "$FAILURE_LOGS" ]]; then
-              TEXT="$TEXT\n\`\`\`\n${FAILURE_LOGS}\n\`\`\`"
-            fi
-          fi
-          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
-            -H 'Content-type: application/json' \
-            --data "$(jq -n --arg text "$TEXT" '{text: $text}')"
-
-      # ── Trigger downstream docs build ──────────────────────────
-      # Uncomment when ready to auto-rebuild docs on release.
-      # Requires a PAT or GitHub App token with `repo` scope on the
-      # docs repo — the default GITHUB_TOKEN is scoped to this repo only.
-      #
-      # - name: Trigger docs rebuild
-      #   if: needs.release.outputs.released != ''
-      #   env:
-      #     GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
-      #   run: |
-      #     gh api repos/argh/docs.v0.net/dispatches \
-      #       -f event_type=schema-release \
-      #       -f "client_payload[version]=${{ needs.release.outputs.released }}"
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    secrets: inherit
+    with:
+      allow_major: ${{ inputs.allow_major || false }}
