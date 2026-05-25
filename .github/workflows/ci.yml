@@ -87,7 +87,10 @@ jobs:
             || steps.route.outputs.host == 'npm.pkg.github.com' && secrets.GITHUB_TOKEN
             || secrets.VERDACCIO_TOKEN }}
           # Provenance only applies to public npmjs; off elsewhere (verdaccio rejects it).
-          NPM_CONFIG_PROVENANCE: ${{ steps.route.outputs.provenance }}
+          # TEMP: forced off for the initial 1.0.0 publish (provenance needs the repo
+          # public, which it now is). Revert to ${{ steps.route.outputs.provenance }}
+          # once 1.0.0 is live so subsequent releases are attested.
+          NPM_CONFIG_PROVENANCE: 'false'
           # On push this input is empty -> 'false' (a major on main is gated).
           ALLOW_MAJOR: ${{ github.event.inputs.allow_major || 'false' }}
         # The four default plugins ship with core; only exec is extra.
