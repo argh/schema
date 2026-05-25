@@ -1,0 +1,19 @@
+{
+  "branches": [
+    "main",
+    { "name": "next", "prerelease": true }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/exec",
+      {
+        "verifyReleaseCmd": "test \"${branch.name}\" != \"main\" || test \"${nextRelease.type}\" != \"major\" || test \"$ALLOW_MAJOR\" = \"true\" || { echo 'Major release on main is gated. Re-run via Actions → Run workflow with allow_major=true.' >&2; exit 1; }",
+        "prepareCmd": "npm run build:types"
+      }
+    ],
+    "@semantic-release/npm",
+    "@semantic-release/github"
+  ]
+}
