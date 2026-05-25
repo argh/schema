@@ -459,7 +459,7 @@ export class Schema
   }
 
   /**
-   * The discriminator handler returns the key or schema of the union member that should be used
+   * The discriminator handler returns the key or schema of the union member that should be used.
    * This function appends a single value processor to the handler pipeline.
    *
    * @param {ValueProcessorSpec} spec
@@ -470,7 +470,7 @@ export class Schema
   }
 
   /**
-   * The discriminator handler returns the key or schema of the union member that should be used
+   * The discriminator handler returns the key or schema of the union member that should be used.
    * This function applies multiple value processors to the handler pipeline.
    * (Note that it would be highly unusual to want more than one!)
    *

@@ -144,16 +144,16 @@ export class CompiledSchema
   }
 
   /**
-   * Handlers are associated with asynchronous value processors.
+   * Handlers are associated with value processors.
    *
-   * The "friendly" handler definitions from the source Schema are each compiled into asynchronous functions
-   * that run as a pipeline.
+   * The "friendly" handler definitions from the source Schema are each compiled into an array
+   * of functions (sync or async) that run as a pipeline.
    *
-   * All handlers have the same async signature, receiving:
+   * All value processors have the same signature, receiving:
    *   1. a value to be processed by the current schema
-   *   2. a reference to the top-level aggregate target being built or processed by the entire schema hierarchy
-   *   3. a location defining the current schema and the traversal path to where it was encountered
-   *   5. any (unmanaged / developer defined) options passed to whatever invoked the handler processing
+   *   2. the top-level aggregate target value being built or processed by the entire schema hierarchy
+   *   3. a location cursor referencing the associated schema and the traversal path to where it was encountered
+   *   4. any (unmanaged / developer defined) options passed to whatever invoked the handler processing
    *
    * The compiled handlers may vary in their return types and exception handling behavior.
    *
@@ -617,7 +617,7 @@ export class CompiledSchema
 
   /**
    * Use the registered discriminator to return a matching union schema, or undefined if the union cannot be resolved.
-   * Discriminator functions must return either one of the unionSchema members, a unionSchema key, or undefined.
+   * Discriminator functions must return either a unionSchema key or (compiled) member reference, or undefined.
    *
    * (This is an executor function that may return synchronous or asynchronous results.)
    *
@@ -668,7 +668,7 @@ export class CompiledSchema
   }
   /**
    * Use the registered discriminator to return a matching union schema, or undefined if the union cannot be resolved.
-   * Discriminator functions must return either one of the unionSchema members, a unionSchema key, or undefined.
+   * Discriminator functions must return either a unionSchema key or (compiled) member reference, or undefined.
    *
    * (This an async wrapper around the internal `_discriminateUnion` executor function.)
    *
@@ -899,7 +899,7 @@ export class CompiledSchema
    * Finalize a transformed input value by running any necessary post-processing steps.
    *
    * Runs all finalizer value processors in a pipeline until one returns undefined or throws an error.
-   * - The input to the pipeline is be assumed to be transformed.
+   * - The input to the pipeline is assumed to be transformed.
    * - Finalizers are generally only required for incremental schemas that need to check child values.
    * - A finalizer on the root schema (or that checks for the root path, if the root schema is shared)
    *   can act as an "entire output" finalizer.
@@ -950,7 +950,7 @@ export class CompiledSchema
    * Finalize a transformed input value by running any necessary post-processing steps.
    *
    * Runs all finalizer value processors in a pipeline until one returns undefined or throws an error.
-   * - The input to the pipeline is be assumed to be transformed.
+   * - The input to the pipeline is assumed to be transformed.
    * - Finalizers are generally only required for incremental schemas that need to check child values.
    * - A finalizer on the root schema (or that checks for the root path, if the root schema is shared)
    *   can act as an "entire output" finalizer.
