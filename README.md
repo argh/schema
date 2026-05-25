@@ -227,7 +227,7 @@ You can think of it like having a toolkit for composing rich runtime-enforced in
 with reflection; embracing the dynamic nature of JavaScript, rather than pretending it has
 static types.
 
-_Read more about this [in the full documentation](https://docs.v0.net/schema/rationale)._
+_Read more about this [in the full documentation](https://docs.v0.net/schema/guide/rationale)._
 
 ## License
 
