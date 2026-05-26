@@ -44,11 +44,13 @@ import { SchemaLocation } from '../schema-location.js';
 /**
  * @typedef {object} ValueProcessorDefinition
  * @property {string} keyword
+ * @property {string} [namespace]
  * @property {ValueProcessorFunction} [process]
  * @property {ValueProcessorParameter[]} [parameters]
  * @property {string} [description]
  * @property {ValueProcessorBuilder} [build]
  * @property {ValueProcessorDescriber} [describe]
+ * @property {boolean} [reserved]
  */
 
 

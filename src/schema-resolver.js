@@ -51,6 +51,8 @@ export function registerCoreLibrary(libraryFn) {
 /** @import { SchemaData } from './types.js' */
 /** @import { ValueProcessorDefinition, ValueProcessorSpec, ValueProcessorBuilder, ValueProcessorFunction, ValueProcessorArgs, ValueProcessorParameter, KeywordValueProcessorSpec } from './value-processor/value-processor.js' */
 
+/** @typedef {{name:string, namespace?:string, schema:Schema}} RegisteredSchemaInfo */
+
 /**
  * The SchemaResolver uses its internal registries of named schemas and value processor keywords to
  * convert Schemas containing unresolved references into resolved Schemas that are fully self-contained.
@@ -58,7 +60,7 @@ export function registerCoreLibrary(libraryFn) {
 export class SchemaResolver
 {
   /**
-   * @type {Map<string,Schema>}
+   * @type {Map<string,RegisteredSchemaInfo>}
    */
   #schemaMap = new Map();
   /**
@@ -85,7 +87,7 @@ export class SchemaResolver
       throw new ResolverError(`Registry can only store Schema instances`);
     }
     const registryName = toKebabCase(name);
-    this.#schemaMap.set(registryName, schema);
+    this.#schemaMap.set(registryName, {name: registryName, schema});
     return this;
   }
 
@@ -96,11 +98,11 @@ export class SchemaResolver
    */
   getSchema(name) {
     const registryName = toKebabCase(name);
-    const schema = this.#schemaMap.get(registryName);
-    if (!schema) {
+    const schemaInfo = this.#schemaMap.get(registryName);
+    if (!schemaInfo) {
       throw new ResolverError(`Unable to resolve "${name}"`);
     }
-    return schema;
+    return schemaInfo.schema;
   }
 
   /**
@@ -114,6 +116,14 @@ export class SchemaResolver
   }
 
   /**
+   * return all registered schemas
+   * @returns {RegisteredSchemaInfo[]}
+   */
+  listRegisteredSchemas() {
+    return [...this.#schemaMap.values()];
+  }
+
+  /**
    * Register a value processor definition
    * @param {ValueProcessorDefinition} definition
    * @returns {SchemaResolver}
@@ -121,20 +131,24 @@ export class SchemaResolver
   registerValueProcessorDefinition(definition) {
     const {keyword, process, description, build} = definition;
 
-    if (!keyword) {
+    if (!keyword || typeof keyword !== 'string') {
       throw new ResolverError('Missing keyword in processor definition');
     }
 
     if (process && build) {
-      throw new ResolverError(`Processor definition for '${keyword}' cannot define both process and build functions`);
+      throw new ResolverError(`Processor definition for '$${keyword}' cannot define both process and build functions`);
     }
 
     if (!process && !build) {
-      throw new ResolverError(`Processor definition for '${keyword}' must have define a process or build function`);
+      throw new ResolverError(`Processor definition for '$${keyword}' must have define a process or build function`);
     }
 
     if (description && typeof description !== 'string') {
-      throw new ResolverError(`Processor definition description for '${keyword}' must be a string`);
+      throw new ResolverError(`Processor definition description for '$${keyword}' must be a string`);
+    }
+
+    if (this.#constantKeywordProcessors[`${keyword}`]) {
+      throw new ResolverError(`Processor keyword conflict with builtin literal '$${keyword}'`)
     }
 
     this.#processorMap.set(keyword, definition);
@@ -176,6 +190,24 @@ export class SchemaResolver
     });
   }
 
+  /**
+   * List all registered value processors (and reserved builtins)
+   *
+   * @returns {ValueProcessorDefinition[]}
+   */
+  listValueProcessorDefinitions() {
+
+    return [
+                        ...Object.entries(this.#constantKeywordProcessors).map(([k,v]) => ({
+                          keyword: k,
+                          build: (() => v),
+                          spec: `$${k}`,
+                          reserved: true
+                        })),
+                        ...this.#processorMap.values()
+    ];
+  }
+
 
   /**
    * Load a library of schemas and/or value processors.
@@ -209,13 +241,11 @@ export class SchemaResolver
 
   }
 
-
-
-  _constantKeywords = {
-    $null: NULL_EXECUTOR,
-    $undefined: UNDEFINED_EXECUTOR,
-    $true: TRUE_EXECUTOR,
-    $false: FALSE_EXECUTOR
+  #constantKeywordProcessors = {
+    'null': new ComposedValueProcessor(NULL_EXECUTOR, '$null'),
+    'undefined': new ComposedValueProcessor(UNDEFINED_EXECUTOR, '$undefined'),
+    'true': new ComposedValueProcessor(TRUE_EXECUTOR, '$true'),
+    'false': new ComposedValueProcessor(FALSE_EXECUTOR, '$false')
   }
 
   /**
@@ -230,8 +260,8 @@ export class SchemaResolver
     }
     const [keyword, rawArgs] = extractKeywordValueProcessorSpec(spec);
 
-    if (this._constantKeywords[spec]) {
-      return new ComposedValueProcessor(this._constantKeywords[spec], spec);
+    if (this.#constantKeywordProcessors[keyword]) {
+      return this.#constantKeywordProcessors[keyword];
     }
 
     if (keyword === 'literal') {
