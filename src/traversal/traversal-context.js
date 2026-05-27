@@ -13,6 +13,7 @@ import { SchemaError } from '../errors.js';
  * @property {boolean} [strict]
  * @property {boolean} [deep]
  * @property {boolean} [debug]
+ * @property {object} [stats]
  */
 
 /** @typedef {TraversalContextStandardOptions & {[key:string]:any}} TraversalContextOptions */
@@ -28,7 +29,7 @@ export class TraversalContext
     this.root = (root instanceof CompiledSchema)? new SchemaLocation(root) : root;
     this._final = false;
 
-    this._options = {...options, deep: options.deep ?? false, strict: options.strict ?? true, debug: options.debug ?? false}
+    this._options = {...options, deep: options.deep ?? false, strict: options.strict ?? true, debug: options.debug ?? false, stats: options.stats ?? {}}
 
     this.traversals = 0;
     this.counter = 0;
@@ -50,6 +51,10 @@ export class TraversalContext
 
   get strict() {
     return this._options.strict;
+  }
+
+  get stats() {
+    return this._options.stats;
   }
 
   update() {
@@ -192,6 +197,11 @@ export class TraversalContext
     let done = false;
 
     const updateDone = (counter) => {
+      this.traversals++;
+
+      this.stats.traversals = this.traversals;
+      this.stats.updates = this.counter;
+
       if (this.isComplete) {
         done = true;
       }
@@ -222,7 +232,6 @@ export class TraversalContext
           );
         }
         updateDone(counter);
-        this.traversals++;
       }
       return result;
     }

@@ -1256,7 +1256,7 @@ export class CompiledSchema
    */
   _process(input, target, options = {}) {
     const location = options?.location ?? new SchemaLocation(this);
-    const context = (options.context instanceof TraversalContext) ? options.context : new TraversalContext(location, {strict: options?.strict, deep: options?.deep, debug: options?.debug});
+    const context = (options.context instanceof TraversalContext) ? options.context : new TraversalContext(location, {strict: options?.strict, deep: options?.deep, debug: options?.debug, stats: options?.stats});
 
     const executors = [];
 
