@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/argh/schema/compare/v1.1.0...v1.2.0) (2026-05-27)
+
+
+### Features
+
+* **traversal:** expose traversal/update stats via process options ([0020b61](https://github.com/argh/schema/commit/0020b61b92f746ea41a49e952439e38747f10d09))
+
 # [1.1.0](https://github.com/argh/schema/compare/v1.0.1...v1.1.0) (2026-05-26)
 
 
