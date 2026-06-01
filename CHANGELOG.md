@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/argh/schema/compare/v1.3.1...v1.4.0) (2026-06-01)
+
+
+### Features
+
+* **browser:** bundle the helpers and errors subpaths ([999c088](https://github.com/argh/schema/commit/999c088e9155d07f1117b929df8f1a2f99e00849))
+
 ## [1.3.1](https://github.com/argh/schema/compare/v1.3.0...v1.3.1) (2026-06-01)
 
 # [1.3.0](https://github.com/argh/schema/compare/v1.2.0...v1.3.0) (2026-06-01)
