@@ -16,3 +16,4 @@ processors-output-md/
 benchmark/
 dev-scripts/
 types/
+dist/

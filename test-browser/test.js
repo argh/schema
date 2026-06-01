@@ -176,6 +176,31 @@ async function run() {
     assertEqual(await compiled.process(5), 10, 'custom double');
   });
 
+  // -- Pre-built browser bundle (dist/schema.browser.mjs) ----------
+  // The bundle is what CDN consumers load (single request). These
+  // tests guard against a broken or stale artifact reaching publish.
+  await test('bundle: exports are available', async () => {
+    const mod = await import('/dist/schema.browser.mjs');
+    for (const name of ['Schema', 'SchemaResolver', 'CompiledSchema', 'SchemaError', 'SchemaLocation']) {
+      assert(typeof mod[name] === 'function', name);
+    }
+    assert(mod.EMPTY !== undefined, 'EMPTY');
+  });
+
+  await test('bundle: compiles and processes', async () => {
+    const { Schema, SchemaResolver } = await import('/dist/schema.browser.mjs');
+    const resolver = new SchemaResolver();
+    const compiled = await resolver.compile(new Schema('string').normalizer('$trim').normalizer('$lowercase'));
+    assertEqual(await compiled.process('  HeLLo  '), 'hello', 'trim + lowercase');
+  });
+
+  await test('bundle: excludes the Node-only library', async () => {
+    const { Schema, SchemaResolver } = await import('/dist/schema.browser.mjs');
+    let threw = false;
+    try { await new SchemaResolver().compile(new Schema('buffer')); } catch { threw = true; }
+    assert(threw, 'buffer schema should not be registered in the bundle');
+  });
+
   // summary
   const passed = results.filter(r => r.passed).length;
   const failed = results.filter(r => !r.passed).length;

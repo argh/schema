@@ -30,26 +30,30 @@
   "main": "./src/index.js",
   "files": [
     "src/**",
+    "dist/**",
     "types/**",
     "LICENSE",
     "README.md"
   ],
   "exports": {
     ".": {
-      "default": "./src/index.js",
-      "types": "./types/index.d.ts"
+      "types": "./types/index.d.ts",
+      "browser": "./dist/schema.browser.mjs",
+      "default": "./src/index.js"
     },
     "./helpers": {
-      "default": "./src/helpers/index.js",
-      "types": "./types/helpers/index.d.ts"
+      "types": "./types/helpers/index.d.ts",
+      "default": "./src/helpers/index.js"
     },
     "./errors": {
-      "default": "./src/errors.js",
-      "types": "./types/errors/index.d.ts"
+      "types": "./types/errors/index.d.ts",
+      "default": "./src/errors.js"
     }
   },
   "scripts": {
+    "build": "npm run build:types && npm run build:browser",
     "build:types": "tsc --declaration --emitDeclarationOnly",
+    "build:browser": "esbuild src/index.browser.js --bundle --format=esm --minify --legal-comments=none --banner:js=\"/* @versionzero/schema | Apache-2.0 | github.com/argh */\" --outfile=dist/schema.browser.mjs",
     "test": "mocha",
     "test:bail": "mocha -b",
     "test:coverage": "c8 mocha --ignore 'test/99-*.test.js'",
@@ -60,6 +64,7 @@
     "docs:api:md": "typedoc --options typedoc-md.json",
     "docs:api:md:contributors": "typedoc --options typedoc-md.json --excludeInternal false --excludePrivate false --out docs-output-md-contributors",
     "docs:processors": "node scripts/extract-processor-docs.js",
+    "pretest:browser": "npm run build:browser",
     "test:browser": "playwright test",
     "test:all": "npm test && npm run test:browser",
     "clean": "rm -rf types docs-output* processors-output* .mdrun .c8 .nyc_output",
@@ -71,6 +76,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.19.10",
     "c8": "^8.0.1",
+    "esbuild": "^0.28.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.5.4",

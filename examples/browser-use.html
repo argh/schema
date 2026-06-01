@@ -19,11 +19,22 @@
 //  @versionzero/schema -- browser usage example
 //
 //  This demonstrates that the library works directly in the browser
-//  as raw ESM with no build step.  Once published to npm, you can
-//  import from a CDN like jsdelivr:
+//  as raw ESM with no build step.
+//
+//  From a CDN, import the pre-built single-file browser bundle -- one
+//  HTTP request instead of one per module in the import graph:
 //
 //    import { Schema, SchemaResolver } from
-//      'https://cdn.jsdelivr.net/npm/@versionzero/schema/src/index.js';
+//      'https://cdn.jsdelivr.net/npm/@versionzero/schema/dist/schema.browser.mjs';
+//
+//  Or let a bundling CDN resolve the "browser" export condition for
+//  you (jsDelivr's +esm flavor, or esm.sh):
+//
+//    import { Schema, SchemaResolver } from
+//      'https://cdn.jsdelivr.net/npm/@versionzero/schema/+esm';
+//
+//  Avoid importing the raw .../src/index.js entry over a CDN: it has
+//  no build step and the module graph fans out to ~200 requests.
 //
 //  For local development, serve the repo root and import from the
 //  relative path, as shown below.
