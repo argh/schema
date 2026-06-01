@@ -19,12 +19,17 @@ const BANNER = '/* @versionzero/schema | Apache-2.0 | github.com/argh */';
 await mkdir(DIST, { recursive: true });
 
 // ── main bundle ────────────────────────────────────────────────────────────
+// `keepNames` preserves class + function identifiers under minification — the
+// library's error classes (`ValidationError`, `ConstraintError`, …) carry
+// meaning that user code introspects via `.name` / `instanceof`. The size cost
+// is modest; the UX win for downstream debugging is significant.
 await build({
   entryPoints: [join(ROOT, 'src/index.browser.js')],
   outfile: join(DIST, 'schema.browser.mjs'),
   bundle: true,
   format: 'esm',
   minify: true,
+  keepNames: true,
   legalComments: 'none',
   banner: { js: BANNER },
 });
