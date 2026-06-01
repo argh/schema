@@ -11,12 +11,11 @@ For full documentation, see <https://docs.v0.net/schema>.
 
 ## Installation
 
+ESM-only; runs on Node.js 19+ or any modern browser. 
 ```bash
 npm install --save @versionzero/schema
 ```
-
-ESM-only; runs on Node.js 19+ or any modern browser. For browser/CDN usage and
-platform differences, see [Installation](https://docs.v0.net/schema/installation).
+For browser/CDN usage and platform differences, see [Installation](https://docs.v0.net/schema/installation).
 
 ### Examples
 (Source can be found in the [examples directory](https://github.com/argh/schema/tree/main/examples))
