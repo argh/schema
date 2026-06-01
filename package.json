@@ -43,17 +43,19 @@
     },
     "./helpers": {
       "types": "./types/helpers/index.d.ts",
+      "browser": "./dist/helpers.browser.mjs",
       "default": "./src/helpers/index.js"
     },
     "./errors": {
       "types": "./types/errors/index.d.ts",
+      "browser": "./dist/errors.browser.mjs",
       "default": "./src/errors.js"
     }
   },
   "scripts": {
     "build": "npm run build:types && npm run build:browser",
     "build:types": "tsc --declaration --emitDeclarationOnly",
-    "build:browser": "esbuild src/index.browser.js --bundle --format=esm --minify --legal-comments=none --banner:js=\"/* @versionzero/schema | Apache-2.0 | github.com/argh */\" --outfile=dist/schema.browser.mjs",
+    "build:browser": "node scripts/build-browser.mjs",
     "test": "mocha",
     "test:bail": "mocha -b",
     "test:coverage": "c8 mocha --ignore 'test/99-*.test.js'",
