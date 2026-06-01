@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/argh/schema/compare/v1.4.1...v1.4.2) (2026-06-01)
+
+
+### Bug Fixes
+
+* **browser:** serve raw source to bundlers via export conditions ([9709aa6](https://github.com/argh/schema/commit/9709aa6243913e8625c8e8400d84e8a0e13e6a55))
+
 ## [1.4.1](https://github.com/argh/schema/compare/v1.4.0...v1.4.1) (2026-06-01)
 
 
