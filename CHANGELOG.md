@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/argh/schema/compare/v1.2.0...v1.3.0) (2026-06-01)
+
+
+### Features
+
+* **browser:** ship single-file bundle for CDN consumption ([1e56f7f](https://github.com/argh/schema/commit/1e56f7f160b7ce313ea06fe8cdf3a2d7be9a8709))
+
 # [1.2.0](https://github.com/argh/schema/compare/v1.1.0...v1.2.0) (2026-05-27)
 
 
