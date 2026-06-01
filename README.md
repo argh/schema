@@ -9,28 +9,14 @@ A composition-oriented schema system for processing, extracting, and validating 
 
 For full documentation, see <https://docs.v0.net/schema>.
 
-## Requirements
+## Installation
 
-- Node.js 19+ or any modern browser
-- ESM only
-
-## Basic Usage
-
-Core schema and value processor availability vary by platform.
-
-### Node
 ```bash
 npm install --save @versionzero/schema
 ```
-Includes support for `Buffer` and processors for file system access.
-### Browsers
-```html
-<script type="module">
-  import { Schema, SchemaResolver } from '@versionzero/schema';
-  // ...
-</script>
-```
-Works in browsers as raw ESM — no build step required.
+
+ESM-only; runs on Node.js 19+ or any modern browser. For browser/CDN usage and
+platform differences, see [Installation](https://docs.v0.net/schema/installation).
 
 ### Examples
 (Source can be found in the [examples directory](https://github.com/argh/schema/tree/main/examples))
