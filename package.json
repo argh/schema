@@ -1,6 +1,6 @@
 {
   "name": "@versionzero/schema",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A composable schema library that supports asynchronous processing",
   "license": "Apache-2.0",
   "publishConfig": {

@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/argh/schema/compare/v1.4.0...v1.4.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* **browser:** preserve identifier names in the minified bundle ([46b3024](https://github.com/argh/schema/commit/46b30245f5521eadc8dec650c226ad1b38fe7c34))
+
 # [1.4.0](https://github.com/argh/schema/compare/v1.3.1...v1.4.0) (2026-06-01)
 
 
