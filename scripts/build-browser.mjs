@@ -1,14 +1,14 @@
-// Builds the browser distribution: the main esbuild bundle of the universal
-// core, plus thin re-export proxies for the `./helpers` and `./errors`
-// subpaths. The proxies point back at the main bundle so consumers loading
-// multiple subpaths share one cached download instead of each subpath
-// pulling its own copy of the dependency closure.
+// Builds the browser distribution: a single self-hosted bundle of the universal
+// core, for direct/import-map use without a CDN's per-module request fan-out.
+// The bundle re-exports the full public surface (schema, helpers, errors) so one
+// download covers everything a consumer needs.
 //
-// The proxy name lists are discovered by importing the source modules —
-// no manual sync needed when the surface area changes.
+// Bundlers (webpack/vite/rollup) and CDN auto-resolvers (jsDelivr `/+esm`,
+// esm.sh) do NOT consume this file — they resolve the `browser`/`default` export
+// conditions to raw source and do their own bundling. See package.json exports.
 
 import { build } from 'esbuild';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join, dirname, resolve } from 'node:path';
 
@@ -18,11 +18,10 @@ const BANNER = '/* @versionzero/schema | Apache-2.0 | github.com/argh */';
 
 await mkdir(DIST, { recursive: true });
 
-// ── main bundle ────────────────────────────────────────────────────────────
 // `keepNames` preserves class + function identifiers under minification — the
 // library's error classes (`ValidationError`, `ConstraintError`, …) carry
-// meaning that user code introspects via `.name` / `instanceof`. The size cost
-// is modest; the UX win for downstream debugging is significant.
+// meaning that user code and diagnostics introspect via `.name` / `instanceof`.
+// The size cost is negligible; the debugging UX win is significant.
 await build({
   entryPoints: [join(ROOT, 'src/index.browser.js')],
   outfile: join(DIST, 'schema.browser.mjs'),
@@ -34,29 +33,3 @@ await build({
   banner: { js: BANNER },
 });
 console.log('  ✓ dist/schema.browser.mjs (bundle)');
-
-// ── subpath proxies ────────────────────────────────────────────────────────
-async function namedExportsOf(absSrc) {
-  // Importing the source ESM gives us the real set of public names without
-  // regex-parsing brittleness; any rename/addition/removal flows through.
-  const mod = await import(absSrc);
-  return Object.keys(mod).filter((k) => k !== 'default');
-}
-
-async function writeProxy(outFile, srcFile, label) {
-  const names = await namedExportsOf(join(ROOT, srcFile));
-  const body =
-    `${BANNER}\n` +
-    `// Browser proxy for \`@versionzero/schema/${label}\`. Re-exports the public\n` +
-    `// surface from the main bundle so importing this subpath shares one cached\n` +
-    `// HTTP request with the main bundle. Names mirror \`${srcFile}\`.\n` +
-    `export {\n  ${names.join(',\n  ')},\n} from './schema.browser.mjs';\n`;
-  await writeFile(outFile, body);
-  return names.length;
-}
-
-const h = await writeProxy(join(DIST, 'helpers.browser.mjs'), 'src/helpers/index.js', 'helpers');
-console.log(`  ✓ dist/helpers.browser.mjs (proxy, ${h} names)`);
-
-const e = await writeProxy(join(DIST, 'errors.browser.mjs'), 'src/errors.js', 'errors');
-console.log(`  ✓ dist/errors.browser.mjs (proxy, ${e} names)`);
